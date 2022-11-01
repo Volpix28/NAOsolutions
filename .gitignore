@@ -1,0 +1,6 @@
+*.word
+.devcontainer
+Notebooks
+reqs
+*.ipynb
+*.dockerfile
