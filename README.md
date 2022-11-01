@@ -1,2 +1,2 @@
 # NAOsolutions
-University Project for detecting Polypharmacy and make suggestions
+University Project for experimenting with the NAO robot.
