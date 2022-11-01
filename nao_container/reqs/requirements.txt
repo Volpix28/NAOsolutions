@@ -1,0 +1,8 @@
+ipykernel
+pylint<2.0.0
+Pillow
+pandas
+matplotlib
+sklearn
+paramiko
+flask
