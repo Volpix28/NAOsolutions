@@ -1,7 +1,0 @@
-*.word
-.devcontainer
-Notebooks
-reqs
-*.ipynb
-*.dockerfile
-.gitignore
