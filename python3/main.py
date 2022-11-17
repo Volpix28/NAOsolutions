@@ -11,7 +11,7 @@ api = Api(app)
 fileshare = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\fileshare')
 knowledge_base = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\knowledge_base') # knowledge_base
 
-class emotionDetection(Resource): # Inherit from Resource
+class EmotionDetection(Resource): # Inherit from Resource
     def get(self, img_name): #overwrite get()
         obj = DeepFace.analyze(img_path = f'img/{img_name}', actions = ['gender', 'emotion'])
         return obj # has to be serializable
@@ -26,7 +26,7 @@ todo:
                             - person is not known, then after name is stored, move picture to names_img
 '''
 
-class faceRecognition(Resource):
+class FaceRecognition(Resource):
     def get(self, img_name):   
         for img in knowledge_base: # FaceRecognicion
             result = DeepFace.verify(img1_path = f'img/{img_name}', img2_path = f'names_img/{img}')
@@ -44,10 +44,10 @@ class faceRecognition(Resource):
 
 '''
 todo:
-- move img when name is reognized to names_img
+- move img when name is recognized to names_img
 '''
 
-class addName(Resource):
+class AddName(Resource):
     def get(self, name, img_name):   
         df = pd.read_csv('names.csv')
         new_entry = {'IMG' : img_name, 'NAME': name}
@@ -57,9 +57,9 @@ class addName(Resource):
         return {'data': 'Posted'}
 
 # add this resource to the api and make it acessable through URL
-api.add_resource(emotionDetection, "/emotiondetection/<string:img_name>") # add parameters with /<int:test>/...
-api.add_resource(faceRecognition, "/facerecognition/<string:img_name>")
-api.add_resource(addName, "/addname/<string:name>/<string:img_name>")
+api.add_resource(EmotionDetection, "/emotiondetection/<string:img_name>") # add parameters with /<int:test>/...
+api.add_resource(FaceRecognition, "/facerecognition/<string:img_name>")
+api.add_resource(AddName, "/addname/<string:name>/<string:img_name>")
 
 
 

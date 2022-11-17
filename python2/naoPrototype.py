@@ -1,34 +1,32 @@
-#Imports
+# Imports
 import time
 import calendar
 import time
 import requests
 import os
 import ast
-
-BASE = 'http://172.22.0.1:5000/' 
-
 # Python Image Library
-from PIL import Image #works only in local env
+from PIL import Image # works only in local env
 from naoqi import ALProxy
 
-#Connection settings
+# Connection settings
 NAOIP = '192.168.8.105'
 PORT = 9559
 NAME = 'nao'
 passwd = '19981'
+BASE_API = 'http://172.22.0.1:5000/'
 
-## TEST
+# Test
 tts = 'ALTextToSpeech'
 text = ALProxy(tts, NAOIP, PORT)
 text.say('Testrun')
 
-def takePicture(IP, PORT,camera,resolution, colorSpace):
+def takePicture(IP, PORT, camera, resolution, colorSpace):
   '''
   First get an image from Nao, then show it on the screen with PIL.
   '''
   camProxy = ALProxy('ALVideoDevice', IP, PORT)
-  videoClient = camProxy.subscribeCamera('python_client',0, resolution, colorSpace, 5)
+  videoClient = camProxy.subscribeCamera('python_client', 0, resolution, colorSpace, 5)
   t0 = time.time()
 
   # Get a camera image.
@@ -37,11 +35,10 @@ def takePicture(IP, PORT,camera,resolution, colorSpace):
   t1 = time.time()
   
   # Time the image transfer.
-  print 'acquisition delay ', t1 - t0
+  print 'acquisition delay ', t1-t0
   camProxy.unsubscribe(videoClient)
 
-  # Now we work with the image returned and save it as a PNG  using ImageDraw
-  # package.
+  # Now we work with the image returned and save it as a PNG  using ImageDraw package.
 
  
   # Get the image size and pixel array.
@@ -68,14 +65,14 @@ def takePicture(IP, PORT,camera,resolution, colorSpace):
 camera = 1 # 0 = top camera, 1 = bottom camera
 resolution = 3 # 0 = QQVGA, 1 = QVGA, 2 = VGA
 colorSpace = 11 # http://doc.aldebaran.com/2-5/family/robots/video_robot.html#cameracolorspace-mt9m114
-naoImage = takePicture(NAOIP, PORT,camera,resolution, colorSpace)
+naoImage = takePicture(NAOIP, PORT, camera, resolution, colorSpace)
 
 
 #Filler
 text.say('I hope you are having a good day.')
 
-response_fr = requests.get(BASE + 'facerecognition/' + imName) # .get, .post
-response_ed = requests.get(BASE + 'emotiondetection/' + imName)
+response_fr = requests.get(BASE_API + 'facerecognition' + os.sep + imName) # .get, .post
+response_ed = requests.get(BASE_API + 'emotiondetection' + os.sep + imName)
 result_ed = response_ed.json()
 result_fr = ast.literal_eval(response_fr.json())
 gender = str(result_ed[u'gender'])
@@ -93,8 +90,7 @@ else:
     text.say(
       'Hey ' + result_fr['name'] + 'long time no see!'\
       + 'You look rather ' + emotion \
-      + 'today.'
-      )
+      + ' today.')
 
 #Set action for known person
 #text.say('Nice to meet you again.')
