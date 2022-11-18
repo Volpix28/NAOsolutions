@@ -1,7 +1,6 @@
 # Imports
 import time
 import calendar
-import time
 import requests
 import os
 import ast
@@ -21,7 +20,7 @@ tts = 'ALTextToSpeech'
 text = ALProxy(tts, NAOIP, PORT)
 text.say('Testrun')
 
-def takePicture(IP, PORT, camera, resolution, colorSpace):
+def takePicture(IP, PORT, camera, resolution, colorSpace): # see takePictureNew - matthias
   '''
   First get an image from Nao, then show it on the screen with PIL.
   '''
@@ -35,7 +34,7 @@ def takePicture(IP, PORT, camera, resolution, colorSpace):
   t1 = time.time()
   
   # Time the image transfer.
-  print 'acquisition delay ', t1-t0
+  print('acquisition delay ', t1-t0)
   camProxy.unsubscribe(videoClient)
 
   # Now we work with the image returned and save it as a PNG  using ImageDraw package.
@@ -59,8 +58,20 @@ def takePicture(IP, PORT, camera, resolution, colorSpace):
   global imName
   imName = r'image_' + time_stamp + r'.png'
   im.save('fileshare' + os.sep + imName, 'PNG') #Save files with continuative numbers
- 
 
+
+# TODO: needs to be tested with NAO - matthias
+def takePictureNew(IP, PORT, camera, resolution, colorSpace, location): # missing camera argument in original function - matthias
+  camProxy = ALProxy('ALVideoDevice', IP, PORT)
+  videoClient = camProxy.subscribeCamera('python_client', camera, resolution, colorSpace, 5)
+  naoImage = camProxy.getImageRemote(videoClient)
+  camProxy.unsubscribe(videoClient)
+  imageName = 'image_' + str(calendar.timegm(time.gmtime())) + '.png' # example: image_{time_stamp}.png
+  im = Image.frombytes('RGB', (naoImage[0], naoImage[1]), naoImage[6]) # naoImage[0] = width, naoImage[1] = height, naoImage[6] = image data in ASCII char array
+  im.save(location + os.sep + imageName, 'PNG')
+  print('Image: ' + imageName + ' successfully saved @ ' + location)
+
+# takePictureNew(NAOIP, PORT, camera, resolution, colorSpace, pathToFileshare)
   
 camera = 1 # 0 = top camera, 1 = bottom camera
 resolution = 3 # 0 = QQVGA, 1 = QVGA, 2 = VGA
@@ -71,8 +82,8 @@ naoImage = takePicture(NAOIP, PORT, camera, resolution, colorSpace)
 #Filler
 text.say('I hope you are having a good day.')
 
-response_fr = requests.get(BASE_API + 'facerecognition' + os.sep + imName) # .get, .post
-response_ed = requests.get(BASE_API + 'emotiondetection' + os.sep + imName)
+response_fr = requests.get(BASE_API + 'facerecognition/' + imName) # .get, .post
+response_ed = requests.get(BASE_API + 'emotiondetection/' + imName)
 result_ed = response_ed.json()
 result_fr = ast.literal_eval(response_fr.json())
 gender = str(result_ed[u'gender'])

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api, Resource
 from deepface import DeepFace
+from os.path import expanduser
 import pandas as pd
 import os
 import json
@@ -8,8 +9,14 @@ import json
 app = Flask(__name__)
 api = Api(app)
 
-fileshare = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\fileshare')
-knowledge_base = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\knowledge_base') # knowledge_base
+
+# fileshare = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\fileshare')
+# knowledge_base = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\knowledge_base')
+
+# os independant fileshare and knowledge_base location - matthias
+desktop_path = os.path.join(expanduser('~'), 'Desktop')
+fileshare = os.path.join(desktop_path, 'fileshare')
+knowledge_base = os.path.join(desktop_path, 'knowledge_base')
 
 # Functions
 def moveFile(source, dest):
@@ -27,7 +34,8 @@ def moveFile(source, dest):
 
 class EmotionDetection(Resource): # Inherit from Resource
     def get(self, img_name): #overwrite get()
-        obj = DeepFace.analyze(img_path = f'img/{img_name}', actions = ['gender', 'emotion'])
+        # obj = DeepFace.analyze(img_path = f'img/{img_name}', actions = ['gender', 'emotion'])
+        obj = DeepFace.analyze(fileshare + os.sep + img_name, actions = ['gender', 'emotion']) # testing API response with new location - matthias
         return obj # has to be serializable
 
 
@@ -68,10 +76,10 @@ class AddName(Resource):
         df = df.append(new_entry, ignore_index=True)
         df.to_csv('names.csv', index=False)
         # Move img to dir with known names
-        # moveFile()
+        # moveFile() - TODO: test with accurate locations - matthias
         return {'data': 'Posted'}
 
-# add this resource to the api and make it acessable through URL
+# add this resource to the api and make it accessable through URL
 api.add_resource(EmotionDetection, "/emotiondetection/<string:img_name>") # add parameters with /<int:test>/...
 api.add_resource(FaceRecognition, "/facerecognition/<string:img_name>")
 api.add_resource(AddName, "/addname/<string:name>/<string:img_name>")
@@ -79,4 +87,4 @@ api.add_resource(AddName, "/addname/<string:name>/<string:img_name>")
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True) # set debug=False in production
