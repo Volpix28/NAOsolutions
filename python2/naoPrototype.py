@@ -70,8 +70,9 @@ def takePictureNew(IP, PORT, camera, resolution, colorSpace, location): # missin
   im = Image.frombytes('RGB', (naoImage[0], naoImage[1]), naoImage[6]) # naoImage[0] = width, naoImage[1] = height, naoImage[6] = image data in ASCII char array
   im.save(location + os.sep + imageName, 'PNG')
   print('Image: ' + imageName + ' successfully saved @ ' + location)
+  return imageName
 
-# takePictureNew(NAOIP, PORT, camera, resolution, colorSpace, pathToFileshare)
+# naoImage = takePictureNew(NAOIP, PORT, camera, resolution, colorSpace, pathToFileshare)
   
 camera = 1 # 0 = top camera, 1 = bottom camera
 resolution = 3 # 0 = QQVGA, 1 = QVGA, 2 = VGA
