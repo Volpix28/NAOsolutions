@@ -61,7 +61,7 @@ def takePicture(IP, PORT, camera, resolution, colorSpace): # see takePictureNew 
 
 
 # TODO: needs to be tested with NAO - matthias
-def takePictureNew(IP, PORT, camera, resolution, colorSpace, location): # missing camera argument in original function - matthias
+def takePictureNew(IP, PORT, camera, resolution, colorSpace, location):
   camProxy = ALProxy('ALVideoDevice', IP, PORT)
   videoClient = camProxy.subscribeCamera('python_client', camera, resolution, colorSpace, 5)
   naoImage = camProxy.getImageRemote(videoClient)
@@ -72,13 +72,12 @@ def takePictureNew(IP, PORT, camera, resolution, colorSpace, location): # missin
   print('Image: ' + imageName + ' successfully saved @ ' + location)
   return imageName
 
-# naoImage = takePictureNew(NAOIP, PORT, camera, resolution, colorSpace, pathToFileshare)
   
 camera = 1 # 0 = top camera, 1 = bottom camera
 resolution = 3 # 0 = QQVGA, 1 = QVGA, 2 = VGA
 colorSpace = 11 # http://doc.aldebaran.com/2-5/family/robots/video_robot.html#cameracolorspace-mt9m114
-naoImage = takePicture(NAOIP, PORT, camera, resolution, colorSpace)
-
+# naoImage = takePicture(NAOIP, PORT, camera, resolution, colorSpace)
+naoImage = takePictureNew(NAOIP, PORT, camera, resolution, colorSpace, 'fileshare')
 
 #Filler
 text.say('I hope you are having a good day.')
