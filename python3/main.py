@@ -9,11 +9,11 @@ import json
 
 # Functions - needs to be outsourced from main? - matthias
 def moveFile(source, dest):
-    """
+    '''
     Move single file from source to destination. 
     source: filepath + filename 
     dest: new filepath + (new) filename
-    """
+    '''
     try:
         os.rename(source, dest)
         print(f'Successfully moved File from \"{source}\" to \"{dest}\"')
