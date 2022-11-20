@@ -2,23 +2,12 @@ from flask import Flask
 from flask_restful import Api, Resource
 from deepface import DeepFace
 from os.path import expanduser
+from functools import partial
 import pandas as pd
 import os
 import json
 
-app = Flask(__name__)
-api = Api(app)
-
-
-# fileshare = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\fileshare')
-# knowledge_base = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\knowledge_base')
-
-# os independant fileshare and knowledge_base location - matthias
-desktop_path = os.path.join(expanduser('~'), 'Desktop')
-fileshare = os.path.join(desktop_path, 'fileshare')
-knowledge_base = os.path.join(desktop_path, 'knowledge_base')
-
-# Functions
+# Functions - needs to be outsourced from main? - matthias
 def moveFile(source, dest):
     """
     Move single file from source to destination. 
@@ -31,9 +20,33 @@ def moveFile(source, dest):
     except FileNotFoundError as err:
         print(f'ERROR: {err}')
 
+def makeFolders(dir, subfolders):
+    '''
+    created one or more directories if not existent
+    dir: absolute path
+    subfolders: name(s) of folder(s)
+    '''
+    concat_path = partial(os.path.join, dir) # creates local temp function to map each concatenated subfolder
+    for subfolder in map(concat_path, subfolders): 
+        os.makedirs(subfolder, exist_ok=True)
+
+
+app = Flask(__name__)
+api = Api(app)
+
+# os independant fileshare and knowledge_base location TODO: remove folders from project - matthias
+desktop_path = os.path.join(expanduser('~'), 'Desktop')
+dirs = ['fileshare', 'knowledge_base']
+makeFolders(desktop_path, dirs)
+fileshare = os.path.join(desktop_path, 'fileshare')
+knowledge_base = os.path.join(desktop_path, 'knowledge_base')
+
+# fileshare = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\fileshare')
+# knowledge_base = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\knowledge_base')
+
 
 class EmotionDetection(Resource): # Inherit from Resource
-    def get(self, img_name): #overwrite get()
+    def get(self, img_name): # overwrite get()
         # obj = DeepFace.analyze(img_path = f'img/{img_name}', actions = ['gender', 'emotion'])
         obj = DeepFace.analyze(fileshare + os.sep + img_name, actions = ['gender', 'emotion']) # testing API response with new location - matthias
         return obj # has to be serializable
