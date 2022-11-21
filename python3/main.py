@@ -22,7 +22,7 @@ def moveFile(source, dest):
 
 def makeFolders(dir, subfolders):
     '''
-    created one or more directories if not existent
+    Creates one or more directories if not existent.
     dir: absolute path
     subfolders: name(s) of folder(s)
     '''
