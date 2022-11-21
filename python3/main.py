@@ -29,7 +29,7 @@ def createFolders(dir, subfolders):
     for subfolder in map(concat_path, subfolders): 
         os.makedirs(subfolder, exist_ok=True)
 
-
+ 
 app = Flask(__name__)
 api = Api(app)
 
