@@ -6,15 +6,15 @@ import pandas as pd
 import os
 import json
 
-# Functions - needs to be outsourced from main? - matthias
+
 def moveFile(source, dest):
     '''
-    Move single file from source to destination. 
+    Move single file from source to destination.
     source: filepath + filename 
     dest: new filepath + (new) filename
     '''
     try:
-        os.rename(source, dest)
+        os.rename(source, dest) # TODO: delete from fileshare images
         print(f'Successfully moved File from \"{source}\" to \"{dest}\"')
     except FileNotFoundError as err:
         print(f'ERROR: {err}')
@@ -29,26 +29,32 @@ def createFolders(dir, subfolders):
     for subfolder in map(concat_path, subfolders): 
         os.makedirs(subfolder, exist_ok=True)
 
- 
+def createNamesCsv(dir):
+    file_name = dir + os.sep + 'names.csv'
+    if os.path.exists(file_name):
+        print('INFO - createNamesCsv: names.csv already exists')
+    else:
+        df = pd.DataFrame(columns=['IMG','NAME'])
+        df.to_csv(file_name, index=False)
+        print('INFO - createNamesCsv: names.csv created')
+
+
 app = Flask(__name__)
 api = Api(app)
 
 # create fileshare with images and knowledge_base subfolders if not existent
 createFolders('fileshare', ['images', 'knowledge_base'])
 fileshare = os.path.join(os.getcwd(), 'fileshare')
+createNamesCsv(fileshare)
+names_csv = os.path.join(fileshare + os.sep + 'names.csv') # TODO: set var everywhere
 knowledge_base = os.path.join(fileshare, 'knowledge_base')
 images_folder = os.path.join(fileshare, 'images')
 
-# fileshare = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\fileshare')
-# knowledge_base = os.listdir(r'C:\Users\alexa\Desktop\FH\5. Semester\Projekt\rest_api_tut\knowledge_base')
 
-
-class EmotionDetection(Resource): # Inherit from Resource
-    def get(self, img_name): # overwrite get()
-        # obj = DeepFace.analyze(img_path = f'img/{img_name}', actions = ['gender', 'emotion'])
+class EmotionDetection(Resource):
+    def get(self, img_name):
         obj = DeepFace.analyze(images_folder + os.sep + img_name, actions = ['gender', 'emotion'])
-        return obj # has to be serializable
-
+        return obj
 
 '''
 todo: 
@@ -61,11 +67,11 @@ todo:
 
 class FaceRecognition(Resource):
     def get(self, img_name):   
-        for img in knowledge_base: # FaceRecognicion
-            result = DeepFace.verify(img1_path = f'img/{img_name}', img2_path = f'names_img/{img}')
+        for img in knowledge_base:
+            result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
             print(f'Result JSON:\n{result}')
             if result['verified'] == True:
-                df = pd.read_csv('names.csv')
+                df = pd.read_csv(names_csv)
                 df = df[df['IMG'] == f'{img}']
                 name = {'name':df['NAME'].to_string(header=False, index=False)}
                 json_object = json.dumps(name, indent = 4) 
@@ -75,26 +81,38 @@ class FaceRecognition(Resource):
         json_object = json.dumps(name, indent = 4)
         return json_object
 
-'''
-todo:
-- move img when name is recognized to names_img
-'''
 
 class AddName(Resource):
-    def get(self, name, img_name):   
-        df = pd.read_csv('names.csv')
-        new_entry = {'IMG' : img_name, 'NAME': name}
+    def get(self, person_name, img_name):
+        df = pd.read_csv(names_csv)
+        new_entry = {'IMG' : img_name, 'NAME': person_name}
         df = df.append(new_entry, ignore_index=True)
-        df.to_csv('names.csv', index=False)
-        # Move img to dir with known names
-        # moveFile() - TODO: test with accurate locations - matthias
+        df.to_csv(names_csv, index=False)
+        moveFile(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name) # move image from 'images' to 'knowledge_base'
         return {'data': 'Posted'}
+
+
+class DeletePerson(Resource):
+    def get(self, person_name):
+        '''
+        remove image from folder \'images\', \'knowledge_base\' and names.csv file
+        '''
+        df = pd.read_csv(names_csv)
+        file_name = df.loc[df['NAME'] == person_name, 'IMG'].item()
+        df.drop(df.loc[df['NAME']==person_name].index, inplace=True)
+        df.to_csv(names_csv, index=False)
+        knowledge_base_file = os.path.join(knowledge_base + os.sep + file_name)
+        os.remove(knowledge_base_file)
+        print(f'Knowledge base file: \"{knowledge_base_file}\" deleted')
+        return {'data': 'deleted'}
+
+
 
 # add this resource to the api and make it accessable through URL
 api.add_resource(EmotionDetection, "/emotiondetection/<string:img_name>") # add parameters with /<int:test>/...
 api.add_resource(FaceRecognition, "/facerecognition/<string:img_name>")
-api.add_resource(AddName, "/addname/<string:name>/<string:img_name>")
-
+api.add_resource(AddName, "/addname/<string:person_name>/<string:img_name>")
+api.add_resource(DeletePerson, "/deleteperson/<string:person_name>")
 
 
 if __name__ == "__main__":
