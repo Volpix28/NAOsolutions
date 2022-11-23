@@ -67,18 +67,24 @@ todo:
 
 class FaceRecognition(Resource):
     def get(self, img_name):   
-        for img in knowledge_base:
-            result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
-            print(f'Result JSON:\n{result}')
-            if result['verified'] == True:
-                df = pd.read_csv(names_csv)
-                df = df[df['IMG'] == f'{img}']
-                name = {'name':df['NAME'].to_string(header=False, index=False)}
-                json_object = json.dumps(name, indent = 4) 
-                print(f'json_object:\n{json_object}') 
-                return json_object
-        name = {'name':'not found'}
-        json_object = json.dumps(name, indent = 4)
+        try:
+            for img in knowledge_base:
+                result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
+                print(f'Result JSON:\n{result}')
+                if result['verified'] == True:
+                    df = pd.read_csv(names_csv)
+                    df = df[df['IMG'] == f'{img}']
+                    name = {'name':df['NAME'].to_string(header=False, index=False)}
+                    json_object = json.dumps(name, indent = 4) 
+                    print(f'json_object:\n{json_object}') 
+                    return json_object
+                else:
+                    name = {'name':'not found'}
+                    json_object = json.dumps(name, indent = 4)
+                    return json_object
+        except:
+            name = {'name':'not found'}
+            json_object = json.dumps(name, indent = 4)
         return json_object
 
 
