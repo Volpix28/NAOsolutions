@@ -7,3 +7,5 @@ sklearn
 paramiko
 flask
 requests
+SpeechRecognition
+scipy
