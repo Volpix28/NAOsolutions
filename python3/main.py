@@ -14,7 +14,7 @@ def moveFile(source, dest):
     dest: new filepath + (new) filename
     '''
     try:
-        os.rename(source, dest) # TODO: delete from fileshare images
+        os.rename(source, dest)
         print(f'Successfully moved File from \"{source}\" to \"{dest}\"')
     except FileNotFoundError as err:
         print(f'ERROR: {err}')
@@ -30,6 +30,9 @@ def createFolders(dir, subfolders):
         os.makedirs(subfolder, exist_ok=True)
 
 def createNamesCsv(dir):
+    '''
+    Creates names.csv file with column header.
+    '''
     file_name = dir + os.sep + 'names.csv'
     if os.path.exists(file_name):
         print('INFO - createNamesCsv: names.csv already exists')
@@ -46,7 +49,7 @@ api = Api(app)
 createFolders('fileshare', ['images', 'knowledge_base'])
 fileshare = os.path.join(os.getcwd(), 'fileshare')
 createNamesCsv(fileshare)
-names_csv = os.path.join(fileshare + os.sep + 'names.csv') # TODO: set var everywhere
+names_csv = os.path.join(fileshare + os.sep + 'names.csv')
 knowledge_base = os.path.join(fileshare, 'knowledge_base')
 images_folder = os.path.join(fileshare, 'images')
 
