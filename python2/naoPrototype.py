@@ -162,8 +162,44 @@ def get_and_save_name(NAOIP, PORT):
     final_name = knowledgebase_entry(NAOIP, PORT, 3, 0, conformation, name_of_user)
     return final_name
 
-#########################################################
+#########################
+# DELETE USER FUNCTIONS #
+#########################
 
+def record_user_deletion(NAOIP, PORT, record_name_time):
+    text.say("Shall I delete your picture from my database?")
+    recording = record_audio(NAOIP, PORT, record_name_time)
+    conformation_delete_user = speech_recognition(recording)
+    return conformation_delete_user
+
+def confirm_user_deletion_loop(NAOIP, PORT, record_confirm_time, conformation_delete_user, name_of_user):
+    while conformation_delete_user not in ["yes", "no"]:
+        text.say("Shall I delete your picture from my database " + name_of_user + " ?" + " Please, say yes or no!")
+        recording = record_audio(NAOIP, PORT, record_confirm_time)
+        conformation_delete_user = speech_recognition(recording)
+        print(conformation_delete_user)
+        continue
+    return conformation_delete_user
+
+def confirm_user_deletion_loop_correct(NAOIP, PORT, record_confirm_time, conformation_delete_user, name_of_user):
+    while conformation_delete_user in ["yes", "no"]:
+        if conformation_delete_user == 'yes':
+            text.say("Okay, that is a pity that I have to delete you now.")
+            #API
+            requests.get(BASE_API + '/deleteperson/' + name)
+            text.say("I deleted you now.")
+            break
+
+        elif conformation_delete_user == 'no':
+            text.say("Very good! I will continue to recognise you and I hope it stays that way.")
+            break
+
+# MEGA FUNCTION
+def delete_user():
+    user_deletion = record_user_deletion(NAOIP, PORT, 2)
+    user_deletion = confirm_user_deletion_loop(NAOIP, PORT, 2, user_deletion, name)
+    final_desicion = confirm_user_deletion_loop_correct(NAOIP, PORT, 2, user_deletion, name)
+    return final_desicion
 
 
 # Filler
@@ -207,3 +243,8 @@ else:
 
 
 #Emotion detection
+
+
+#DELETE USER
+delete_user()
+
