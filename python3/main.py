@@ -45,7 +45,7 @@ def createNamesCsv(dir):
 app = Flask(__name__)
 api = Api(app)
 
-# create fileshare with images and knowledge_base subfolders if not existent
+# create fileshare with 'images' and 'knowledge_base' subfolder if not existent
 createFolders('fileshare', ['images', 'knowledge_base'])
 fileshare = os.path.join(os.getcwd(), 'fileshare')
 createNamesCsv(fileshare)
@@ -70,34 +70,28 @@ todo:
 
 class FaceRecognition(Resource):
     def get(self, img_name):   
-        try:
-            for img in knowledge_base:
-                result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
-                print(f'Result JSON:\n{result}')
-                if result['verified'] == True:
-                    df = pd.read_csv(names_csv)
-                    df = df[df['IMG'] == f'{img}']
-                    name = {'name':df['NAME'].to_string(header=False, index=False)}
-                    json_object = json.dumps(name, indent = 4) 
-                    print(f'json_object:\n{json_object}') 
-                    return json_object
-                else:
-                    name = {'name':'not found'}
-                    json_object = json.dumps(name, indent = 4)
-                    return json_object
-        except:
-            name = {'name':'not found'}
+        result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
+        if result['verified'] == True:
+            df = pd.read_csv(names_csv)
+            df = df[df['IMG'] == f'{img_name}']
+            name = {'name':df['NAME'].to_string(header=False, index=False)}
             json_object = json.dumps(name, indent = 4)
+            print(f'json_object:\n{json_object}')
+        else:
+            json_object = json.dumps({'name':'not found'}, indent = 4)
         return json_object
 
 
 class AddName(Resource):
     def get(self, person_name, img_name):
+        '''
+        adds image name and name of person to names.csv and moves the png file from 'images' to 'knowledge_base'
+        '''
         df = pd.read_csv(names_csv)
         new_entry = {'IMG' : img_name, 'NAME': person_name}
         df = df.append(new_entry, ignore_index=True)
         df.to_csv(names_csv, index=False)
-        moveFile(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name) # move image from 'images' to 'knowledge_base'
+        moveFile(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
         return {'data': 'Posted'}
 
 
