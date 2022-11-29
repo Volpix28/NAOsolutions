@@ -56,8 +56,11 @@ images_folder = os.path.join(fileshare, 'images')
 
 class EmotionDetection(Resource):
     def get(self, img_name):
-        obj = DeepFace.analyze(images_folder + os.sep + img_name, actions = ['gender', 'emotion'])
-        return obj
+        try:
+            obj = DeepFace.analyze(images_folder + os.sep + img_name, actions = ['gender', 'emotion'])
+            return obj
+        except:
+            return {'error': 'face_not_found'}
 
 '''
 todo: 
@@ -78,7 +81,7 @@ class FaceRecognition(Resource):
             json_object = json.dumps(name, indent = 4)
             print(f'json_object:\n{json_object}')
         else:
-            json_object = json.dumps({'name':'not found'}, indent = 4)
+            json_object = json.dumps({'name':'not_found'}, indent = 4)
         return json_object
 
 
