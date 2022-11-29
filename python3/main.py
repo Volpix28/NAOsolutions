@@ -88,7 +88,7 @@ class FaceRecognition(Resource):
     def get(self, img_name):   
         if knowledge_base_images:
             for img in knowledge_base_images:
-                result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img)
+                result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img, model_name='Facenet512', distance_metric='euclidean_l2')
                 print(f'Result JSON:\n{result}')
                 if result['verified'] == True:
                     df = pd.read_csv(names_csv)
