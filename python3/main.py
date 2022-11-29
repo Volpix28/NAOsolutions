@@ -51,6 +51,7 @@ fileshare = os.path.join(os.getcwd(), 'fileshare')
 createNamesCsv(fileshare)
 names_csv = os.path.join(fileshare + os.sep + 'names.csv')
 knowledge_base = os.path.join(fileshare, 'knowledge_base')
+knowledge_base_images = os.listdir(knowledge_base)
 images_folder = os.path.join(fileshare, 'images')
 
 
@@ -58,19 +59,15 @@ class EmotionDetection(Resource):
     def get(self, img_name):
         try:
             obj = DeepFace.analyze(images_folder + os.sep + img_name, actions = ['gender', 'emotion'])
-            return obj
+            obj = {'dominant_emotion':obj['dominant_emotion'], 'gender':obj['gender']}
+            json_object = json.dumps(obj, indent = 4)
+            return json_object
         except:
-            return {'error': 'face_not_found'}
+            obj = json.dumps({'dominant_emotion': 'face_not_found'}, indent = 4)
+            return obj
 
 '''
-todo: 
-- create more functions for better readability
-- clean fileshare afterwards:
-                        2 events possible:
-                            - person is already knwon and in "names_img" --> delete picture after processing
-                            - person is not known, then after name is stored, move picture to names_img
-'''
-
+# NEW
 class FaceRecognition(Resource):
     def get(self, img_name):   
         result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img_name)
@@ -81,8 +78,35 @@ class FaceRecognition(Resource):
             json_object = json.dumps(name, indent = 4)
             print(f'json_object:\n{json_object}')
         else:
-            json_object = json.dumps({'name':'not_found'}, indent = 4)
+            name = {'name':'not found'}
+            json_object = json.dumps(name, indent = 4)
         return json_object
+'''
+
+# OLD
+class FaceRecognition(Resource):
+    def get(self, img_name):   
+        if knowledge_base_images:
+            for img in knowledge_base_images:
+                result = DeepFace.verify(images_folder + os.sep + img_name, knowledge_base + os.sep + img)
+                print(f'Result JSON:\n{result}')
+                if result['verified'] == True:
+                    df = pd.read_csv(names_csv)
+                    df = df[df['IMG'] == f'{img}']
+                    print(df)
+                    name = {'name':df['NAME'].to_string(header=False, index=False), 'img_id':df['IMG'].to_string(header=False, index=False)}
+                    json_object = json.dumps(name, indent = 4)
+                    print(f'json_object:\n{json_object}')
+                    return json_object
+                
+            name = {'name':'not_found', 'img_id':'not_in_database'}
+            json_object = json.dumps(name, indent = 4)
+            return json_object
+        else: #is needed when knownledge base is empty
+            name = {'name':'not_found', 'img_id':'not_in_database'}
+            json_object = json.dumps(name, indent = 4)
+            return json_object
+
 
 
 class AddName(Resource):
@@ -99,13 +123,14 @@ class AddName(Resource):
 
 
 class DeletePerson(Resource):
-    def get(self, person_name):
+    def get(self, img_id):
         '''
         remove image from folder \'images\', \'knowledge_base\' and names.csv file
         '''
+        print(f'test = {img_id}')
         df = pd.read_csv(names_csv)
-        file_name = df.loc[df['NAME'] == person_name, 'IMG'].item()
-        df.drop(df.loc[df['NAME']==person_name].index, inplace=True)
+        file_name = df.loc[df['IMG'] == img_id, 'IMG'].item()
+        df.drop(df.loc[df['IMG']==img_id].index, inplace=True)
         df.to_csv(names_csv, index=False)
         knowledge_base_file = os.path.join(knowledge_base + os.sep + file_name)
         os.remove(knowledge_base_file)
@@ -118,7 +143,7 @@ class DeletePerson(Resource):
 api.add_resource(EmotionDetection, "/emotiondetection/<string:img_name>") # add parameters with /<int:test>/...
 api.add_resource(FaceRecognition, "/facerecognition/<string:img_name>")
 api.add_resource(AddName, "/addname/<string:person_name>/<string:img_name>")
-api.add_resource(DeletePerson, "/deleteperson/<string:person_name>")
+api.add_resource(DeletePerson, "/deleteperson/<string:img_id>")
 
 
 if __name__ == "__main__":
