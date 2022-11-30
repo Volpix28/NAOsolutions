@@ -195,6 +195,49 @@ def delete_user(name, img_id):
     final_decision = confirm_deletion(user_deletion, img_id, name)
     return final_decision
 
+#########################
+# EMOTIONMATCHING FUNCTIONS #
+#########################
+
+#To-do: Check if it's possible to access entertainment/moods choreograph-functions in python
+
+def get_number(NAOIP, PORT, record_name_time):
+    text.say(Dialog.experiment(name))
+    recording = record_audio(NAOIP, PORT, record_name_time)
+    number = speech_recognition(recording)
+    return number
+
+
+def action(number):
+    if number in [1,2,3,4,5]:
+        if emotion == 'happy':
+            text.say('You seem to be lying!')
+            #action Confused
+
+        else:
+            text.say('Let me try to cheer you up!')
+            #action Saxophone
+
+    else:
+        if emotion == 'happy':
+            text.say('I am glad that you are in a good mood!')
+            #action Excited
+
+        else:
+            text.say('Hmm your expression earlier told me otherwise.')
+            #action Confused
+
+def emotionchange(emotion, emotion2):
+    if emotion == 'happy' and emotion2 == 'happy':
+        text.say('I am glad I could keep you happy.')
+    
+    elif emotion == 'happy' and emotion2 is not 'happy':
+        text.say('Looks like I made your mood worse. Sorry about that!')
+
+    #elif needed or does else catch all the other outcomes?
+    else:
+        text.say('I am glad I could increase your mood.')
+
 
 ##########################
 # START OF CONVERSATION #
@@ -228,20 +271,34 @@ else:
     text.say(Dialog.greeting_known_person(name, emotion))
     delete_user(name, img_id)
 
-
-text.say(Dialog.experiment(name))
-
-
+number = get_number(NAOIP, PORT, 3)
 
 #Set action based on mood
+action(number)
 
+# Line below needed?
+# text.say('Let me take another picture so I can see if your mood changed.')
 
 #Take another picture to check if mood changed
-
+#Change variable names or no need?
+naoImage = takePicture(NAOIP, PORT, camera, resolution, colorSpace, 'fileshare/images') 
 
 #Emotion detection
+response_ed = requests.get(BASE_API + '/emotiondetection/' + naoImage)
+result_ed = ast.literal_eval(response_ed.json())
+while result_ed['dominant_emotion'] == 'face_not_found':
+    # TO-DO: delete old naoImage from fileshare
+    text.say('Face not found.')
+    naoImage = takePicture(NAOIP, PORT, camera, resolution, colorSpace, 'fileshare/images')
+    response_ed = requests.get(BASE_API + '/emotiondetection/' + naoImage)
+    result_ed = ast.literal_eval(response_ed.json())
+
+emotion2 = str(result_ed[u'dominant_emotion'])
+
+emotionchange(emotion, emotion2)
 
 
-#DELETE USER
+
+#DELETE USER?
 
 
