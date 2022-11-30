@@ -15,11 +15,11 @@ Dialog = Dialog()
 
 
 # Connection settings
-NAOIP = '192.168.8.105'
+NAOIP = '192.168.0.242'
 PORT = 9559
 NAME = "nao"
 passwd = "19981"
-BASE_API = 'http://192.168.8.120:5000'
+BASE_API = 'http://192.168.0.213:5000'
 
 # Connection for paramiko
 transport = paramiko.Transport((NAOIP, 22))
@@ -29,6 +29,7 @@ print "Connected to transport......."
 # Test
 tts = 'ALTextToSpeech'
 text = ALProxy(tts, NAOIP, PORT)
+text.setParameter("speed", 80)
 
 
 # NAO picture config
@@ -195,21 +196,79 @@ def delete_user(name, img_id):
     final_decision = confirm_deletion(user_deletion, img_id, name)
     return final_decision
 
-#########################
+
+#############################
+# MANUAL EMOTION DETECTION #
+#############################
+
+def emotion_recording(NAOIP, PORT, record_name_time):
+    text.say("Please rate your mood on a scale from 1 to 10. 10 means that you are happy!")
+    recording = record_audio(NAOIP, PORT, record_name_time)
+    emotion_rating = speech_recognition(recording)
+    return emotion_rating
+
+def emotion_recording_loop(NAOIP, PORT, record_name_time, emotion_rating, name_of_user):
+    while emotion_rating not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
+        text.say("Please, say a number from 1 to 10 " + name_of_user + '.')
+        recording  = record_audio(NAOIP, PORT, record_name_time)
+        emotion_rating = speech_recognition(recording)
+        continue
+    return emotion_rating
+
+
+def confirm_emotion(NAOIP, PORT, record_confirm_time, emotion_rating, name_of_user):
+    text.say('Thank you for the information, ' + name_of_user + '. You said, ' + emotion_rating + ', I am right?')
+    recording = record_audio(NAOIP, PORT, record_confirm_time)
+    conformation = speech_recognition(recording)
+    return conformation
+
+
+def confirm_emotion_loop(NAOIP, PORT, record_confirm_time, conformation, emotion_rating, name_of_user):
+    while conformation not in ["yes", "no"]:
+        text.say(Dialog.sorry_message[0])
+        time.sleep(1)
+        text.say("Your Mood is on a scale from 1 to 10, " + emotion_rating + ". Please say, yes or no!")
+        recording = record_audio(NAOIP, PORT, record_confirm_time)
+        conformation = speech_recognition(recording)
+        continue
+    return conformation
+
+
+def final_rating(NAOIP, PORT, record_confirm_time, confirm_rating,emotion_rating, name_of_user):
+    while confirm_rating in ["yes", "no"]:
+        if confirm_rating == 'yes':
+            text.say("Okay, thank you for the Information!")
+            break
+
+        elif confirm_rating == 'no':
+            text.say("I am really sorry about that! Please rate your mood on a scale from 1 to 10.")
+            recording = record_audio(NAOIP, PORT, 2)
+            emotion_rating = speech_recognition(recording)
+            emotion_rating = emotion_recording_loop(NAOIP, PORT, record_confirm_time, emotion_rating, name_of_user)
+            confirm_rating = confirm_emotion(NAOIP, PORT, record_confirm_time, emotion_rating, name_of_user)
+            confirm_rating = confirm_emotion_loop(NAOIP, PORT, record_confirm_time, confirm_rating, emotion_rating, name_of_user)
+            continue
+
+    emotion_rating = int(emotion_rating)
+    return emotion_rating
+
+def manual_emotion(name_of_user):
+    emotion_rating = emotion_recording(NAOIP, PORT, 2)
+    emotion_rating = emotion_recording_loop(NAOIP, PORT, 2, emotion_rating, name_of_user)
+    confirm_rating = confirm_emotion(NAOIP, PORT, 2, emotion_rating, name_of_user)
+    confirm_rating = confirm_emotion_loop(NAOIP, PORT, 2, confirm_rating, emotion_rating, name_of_user)
+    final_emotion_rating = final_rating(NAOIP, PORT, 2, confirm_rating, emotion_rating, name_of_user)
+    return final_emotion_rating
+
+
+#############################
 # EMOTIONMATCHING FUNCTIONS #
-#########################
+#############################
 
 #To-do: Check if it's possible to access entertainment/moods choreograph-functions in python
 
-def get_number(NAOIP, PORT, record_name_time):
-    text.say(Dialog.experiment(name))
-    recording = record_audio(NAOIP, PORT, record_name_time)
-    number = speech_recognition(recording)
-    return number
-
-
-def action(number):
-    if number in [1,2,3,4,5]:
+def action(emotion_number):
+    if emotion_number in [1,2,3,4,5]:
         if emotion == 'happy':
             text.say('You seem to be lying!')
             #action Confused
@@ -271,10 +330,10 @@ else:
     text.say(Dialog.greeting_known_person(name, emotion))
     delete_user(name, img_id)
 
-number = get_number(NAOIP, PORT, 3)
+manual_emotion_rating = manual_emotion(name)
 
 #Set action based on mood
-action(number)
+action(manual_emotion_rating)
 
 # Line below needed?
 # text.say('Let me take another picture so I can see if your mood changed.')
@@ -294,6 +353,8 @@ while result_ed['dominant_emotion'] == 'face_not_found':
     result_ed = ast.literal_eval(response_ed.json())
 
 emotion2 = str(result_ed[u'dominant_emotion'])
+
+print('emotion before action: ' + emotion + ' emotion after action: ' +  emotion2 + ' manual emotion rating: ' + str(manual_emotion_rating))
 
 emotionchange(emotion, emotion2)
 
