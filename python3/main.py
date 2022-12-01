@@ -77,7 +77,7 @@ class FaceRecognition(Resource):
                 name = df['NAME'][df['IMG']==known_images[i]].values[0]
                 img_id = known_images[i]
                 break
-        os.remove(images_folder + os.sep + img_name)
+        # os.remove(images_folder + os.sep + img_name)
         return {'name': name, 'img_id': img_id}
 
 
