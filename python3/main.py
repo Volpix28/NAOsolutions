@@ -138,12 +138,19 @@ class DeletePerson(Resource):
         return {'data': 'deleted'}
 
 
+class CleanDirectory(Resource):
+    def get(self, dir_path):
+        for file in dir_path:
+            os.remove(file)
+        return {'cleared following directory': dir_path}
+
 
 # add this resource to the api and make it accessable through URL
 api.add_resource(EmotionDetection, "/emotiondetection/<string:img_name>") # add parameters with /<int:test>/...
 api.add_resource(FaceRecognition, "/facerecognition/<string:img_name>")
 api.add_resource(AddName, "/addname/<string:person_name>/<string:img_name>")
 api.add_resource(DeletePerson, "/deleteperson/<string:img_id>")
+api.add_resource(CleanDirectory, "/cleandirectory/<string:dir_path>")
 
 
 if __name__ == "__main__":
