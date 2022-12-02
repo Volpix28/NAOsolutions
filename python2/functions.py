@@ -15,13 +15,16 @@ from scipy.io.wavfile import write
 from dialog import Dialog
 Dialog = Dialog()
 
-#import main for NAOIP etc.
+#NAO Settings
+from main import Connection_settings
+Connection_settings = Connection_settings()
 
-NAOIP = '192.168.0.242'
-PORT = 9559
-NAME = "nao"
-passwd = "19981"
-BASE_API = 'http://192.168.0.213:5000'
+#NAO Settings
+NAOIP = Connection_settings.NAOIP
+PORT = Connection_settings.PORT
+NAME = Connection_settings.NAME
+passwd = Connection_settings.passwd
+BASE_API = Connection_settings.BASE_API
 
 tts = 'ALTextToSpeech'
 text = ALProxy(tts, NAOIP, PORT)
@@ -92,9 +95,9 @@ class Functions:
             except sr.UnknownValueError:
                 sftp.remove(remoteaudiofilepath)
 
-    #########################
-    # DELETE USER FUNCTIONS #
-    #########################
+    ##########################
+    # Name 2 Text Functiions #
+    ##########################
     @staticmethod
     def record_name(NAOIP, PORT, record_name_time):
         text.say(Dialog.say_name)
@@ -159,6 +162,7 @@ class Functions:
         conformation = Functions.confirm_loop(NAOIP, PORT, 3, conformation, name_of_user)
         final_name = Functions.knowledgebase_entry(NAOIP, PORT, 3, conformation, name_of_user)
         return final_name
+
 
     #########################
     # DELETE USER FUNCTIONS #
