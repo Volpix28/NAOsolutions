@@ -43,4 +43,3 @@ class Dialog:
     @staticmethod
     def greeting_known_person(name, emotion):
         return "Hey " + name + " long time no see!" + " You look rather " + emotion + " today."
-    
