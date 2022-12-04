@@ -4,7 +4,7 @@ from deepface import DeepFace
 from functools import partial
 import pandas as pd
 import os
-
+import json
 
 def moveFile(source, dest):
     '''
@@ -57,9 +57,11 @@ images_folder = os.path.join(fileshare, 'images')
 
 class EmotionDetection(Resource):
     def get(self, img_name):
-        obj = DeepFace.analyze(images_folder + os.sep + img_name, actions=['gender', 'emotion'])
-        obj = {'dominant_emotion': obj['dominant_emotion'], 'gender': obj['gender']}  # filter dominant_emotion and gender
-        return obj
+        obj = DeepFace.analyze(img_path=images_folder + os.sep + img_name, 
+                               actions=['gender', 'emotion'])
+        obj_filtered = {'dominant_emotion': obj['dominant_emotion'], 'gender': obj['gender']}
+        json_object = json.dumps(obj_filtered, indent = 4)
+        return json_object
 
 
 class FaceRecognition(Resource):
@@ -78,7 +80,8 @@ class FaceRecognition(Resource):
                 img_id = known_images[i]
                 break
         # os.remove(images_folder + os.sep + img_name)
-        return {'name': name, 'img_id': img_id}
+        json_object = json.dumps({'name': name, 'img_id': img_id}, indent = 4)
+        return json_object
 
 
 class AddName(Resource):
