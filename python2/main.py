@@ -73,7 +73,7 @@ else:
 manual_emotion_rating = Functions.manual_emotion(name)
 
 #Set action based on mood
-Functions.action(manual_emotion_rating, emotion)
+Functions.action(manual_emotion_rating, emotion, name)
 
 # Line below needed?
 # text.say('Let me take another picture so I can see if your mood changed.')

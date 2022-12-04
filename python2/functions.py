@@ -277,35 +277,44 @@ class Functions:
 
     #To-do: Check if it's possible to access entertainment/moods choreograph-functions in python // jokes
     @staticmethod
-    def action(emotion_number, emotion):
+    def action(emotion_number, emotion, name_of_user):
         if emotion_number in [1,2,3,4,5]:
             if emotion == 'happy':
                 text.say('You seem to be lying!')
-                #action Confused
+                text.say(Dialog.random_joke(name_of_user))
+                #action Confused?
 
             else:
                 text.say('Let me try to cheer you up!')
-                #action Saxophone
+                text.say(Dialog.random_joke(name_of_user))
+                #action Saxophone?
 
         else:
             if emotion == 'happy':
                 text.say('I am glad that you are in a good mood!')
-                #action Excited
+                text.say(Dialog.random_joke(name_of_user))
+                #action Excited?
 
             else:
                 text.say('Hmm your expression earlier told me otherwise.')
-                #action Confused
+                text.say(Dialog.random_joke(name_of_user))
+                #action Confused?
 
     @staticmethod
     # To-Do: Create new elif statements
+    #Caught all possible outcomes?
     def emotionchange(emotion, emotion2):
-        # neutral
-        if emotion == 'happy' and emotion2 == 'happy':
+        negative = ['angry', 'disgust', 'fear', 'sad', 'surprised']
+        neutral = ['neutral']
+        positive = ['happy']
+        if emotion in positive and emotion2 in positive:
             text.say('I am glad I could keep you happy.')
         
-        elif emotion == 'happy' and emotion2 is not 'happy':
+        elif emotion in positive and emotion2 not in positive:
             text.say('Looks like I made your mood worse. Sorry about that!')
 
-        #elif needed or does else catch all the other outcomes?
-        else:
-            text.say('I am glad I could increase your mood.')
+        elif emotion in negative and emotion2 in negative or emotion in neutral and emotion2 in neutral:
+            text.say('Looks like I could not change your mood.')
+
+        elif emotion in negative or neutral and emotion2 in positive:
+            text.say('I am glad I could brighten up your mood.')
