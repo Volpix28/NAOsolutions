@@ -66,7 +66,7 @@ class EmotionDetection(Resource):
 
 class FaceRecognition(Resource):
     def get(self, img_name):
-        name, img_id = 'not found', 'not_in_database'
+        name, img_id = 'not_found', 'not_in_database'
         known_images = os.listdir(knowledge_base)
         for i in range(0, len(known_images)):
             result = DeepFace.verify(img1_path=knowledge_base + os.sep + known_images[i],
