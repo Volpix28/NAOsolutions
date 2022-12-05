@@ -28,8 +28,83 @@ tts = 'ALTextToSpeech'
 text = ALProxy(tts, NAOIP, PORT)
 text.setParameter("speed", 80)
 
+#TIMESTAMP
 def getTimestamp():
     return str(calendar.timegm(time.gmtime()))
+
+# ACTION
+def hulahoop(NAOIP, PORT):
+    motionProxy  = ALProxy("ALMotion", NAOIP, PORT)
+    postureProxy = ALProxy("ALRobotPosture", NAOIP, PORT)
+    # end initialize proxy, begin go to Stand Init
+
+    # Wake up robot
+    motionProxy.wakeUp()
+
+    # Send robot to Stand Init
+    postureProxy.goToPosture("StandInit", 0.5)
+
+    # end go to Stand Init, begin define control point
+    effector        = "Torso"
+    frame           =  motion.FRAME_ROBOT
+    axisMask        = almath.AXIS_MASK_ALL
+    isAbsolute      = True
+    useSensorValues = False
+
+    currentTf = almath.Transform(motionProxy.getTransform(effector, frame, useSensorValues))
+
+    # end define control point, begin define target
+
+    # Define the changes relative to the current position
+    dx         = 0.03                    # translation axis X (meter)
+    dy         = 0.03                    # translation axis Y (meter)
+    dwx        = 8.0*almath.TO_RAD       # rotation axis X (rad)
+    dwy        = 8.0*almath.TO_RAD       # rotation axis Y (rad)
+
+    # point 01 : forward  / bend backward
+    target1Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
+    target1Tf *= almath.Transform(dx, 0.0, 0.0)
+    target1Tf *= almath.Transform().fromRotY(-dwy)
+
+    # point 02 : right    / bend left
+    target2Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
+    target2Tf *= almath.Transform(0.0, -dy, 0.0)
+    target2Tf *= almath.Transform().fromRotX(-dwx)
+
+    # point 03 : backward / bend forward
+    target3Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
+    target3Tf *= almath.Transform(-dx, 0.0, 0.0)
+    target3Tf *= almath.Transform().fromRotY(dwy)
+
+    # point 04 : left     / bend right
+    target4Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
+    target4Tf *= almath.Transform(0.0, dy, 0.0)
+    target4Tf *= almath.Transform().fromRotX(dwx)
+
+    path = []
+    path.append(list(target1Tf.toVector()))
+    path.append(list(target2Tf.toVector()))
+    path.append(list(target3Tf.toVector()))
+    path.append(list(target4Tf.toVector()))
+
+    path.append(list(target1Tf.toVector()))
+    path.append(list(target2Tf.toVector()))
+    path.append(list(target3Tf.toVector()))
+    path.append(list(target4Tf.toVector()))
+
+    path.append(list(target1Tf.toVector()))
+    path.append(list(currentTf.toVector()))
+
+    timeOneMove  = 0.5 #seconds
+    times = []
+    for i in range(len(path)):
+        times.append((i+1)*timeOneMove)
+
+    # call the cartesian control API
+    motionProxy.transformInterpolations(effector, frame, path, axisMask, times)
+
+    # Go to rest position
+    motionProxy.rest()
 
 class Functions:
     @staticmethod
@@ -212,7 +287,7 @@ class Functions:
 
     @staticmethod
     def emotion_recording(NAOIP, PORT, record_name_time):
-        text.say("Please rate your mood on a scale from 1 to 10. 10 means that you are happy!")
+        text.say(Dialog.emotion_recording[0])
         recording = Functions.record_audio(NAOIP, PORT, record_name_time)
         emotion_rating = Functions.speech_recognition(recording)
         return emotion_rating
@@ -220,14 +295,14 @@ class Functions:
     @staticmethod
     def emotion_recording_loop(NAOIP, PORT, record_name_time, emotion_rating, name_of_user):
         while emotion_rating not in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
-            text.say("Please, say a number from 1 to 10 " + name_of_user + '.')
+            text.say(Dialog.invalid_emotion(name_of_user))
             recording = Functions.record_audio(NAOIP, PORT, record_name_time)
             emotion_rating = Functions.speech_recognition(recording)
         return emotion_rating
 
     @staticmethod
     def confirm_emotion(NAOIP, PORT, record_confirm_time, emotion_rating, name_of_user):
-        text.say('Thank you for the information, ' + name_of_user + '. You said, ' + emotion_rating + ', I am right?')
+        text.say(Dialog.emotion_conformation(name_of_user, emotion_rating))
         recording = Functions.record_audio(NAOIP, PORT, record_confirm_time)
         conformation = Functions.speech_recognition(recording)
         return conformation
@@ -237,7 +312,7 @@ class Functions:
         while conformation not in ["yes", "no"]:
             text.say(Dialog.sorry_message[0])
             time.sleep(1)
-            text.say("Your Mood is on a scale from 1 to 10, " + emotion_rating + ". Please say, yes or no!")
+            text.say(Dialog.emotion_invalid_confirmation(emotion_rating))
             recording = Functions.record_audio(NAOIP, PORT, record_confirm_time)
             conformation = Functions.speech_recognition(recording)
         return conformation
@@ -246,10 +321,10 @@ class Functions:
     def final_rating(NAOIP, PORT, record_confirm_time, confirm_rating,emotion_rating, name_of_user):
         while confirm_rating in ["yes", "no"]:
             if confirm_rating == 'yes':
-                text.say("Okay, thank you for the Information!")
+                text.say(Dialog.emotion_recording[1])
                 break
             elif confirm_rating == 'no':
-                text.say("I am really sorry about that! Please rate your mood on a scale from 1 to 10.")
+                text.say(Dialog.emotion_recording[2])
                 recording = Functions.record_audio(NAOIP, PORT, 2)
                 emotion_rating = Functions.speech_recognition(recording)
                 emotion_rating = Functions.emotion_recording_loop(NAOIP, PORT, record_confirm_time, emotion_rating, name_of_user)
@@ -267,86 +342,6 @@ class Functions:
         final_emotion_rating = Functions.final_rating(NAOIP, PORT, 2, confirm_rating, emotion_rating, name_of_user)
         return final_emotion_rating
 
-    ##########
-    # ACTION #
-    ##########
-
-    @staticmethod
-    def hulahoop(NAOIP, PORT):
-        motionProxy  = ALProxy("ALMotion", NAOIP, PORT)
-        postureProxy = ALProxy("ALRobotPosture", NAOIP, PORT)
-        # end initialize proxy, begin go to Stand Init
-
-        # Wake up robot
-        motionProxy.wakeUp()
-
-        # Send robot to Stand Init
-        postureProxy.goToPosture("StandInit", 0.5)
-
-        # end go to Stand Init, begin define control point
-        effector        = "Torso"
-        frame           =  motion.FRAME_ROBOT
-        axisMask        = almath.AXIS_MASK_ALL
-        isAbsolute      = True
-        useSensorValues = False
-
-        currentTf = almath.Transform(motionProxy.getTransform(effector, frame, useSensorValues))
-
-        # end define control point, begin define target
-
-        # Define the changes relative to the current position
-        dx         = 0.03                    # translation axis X (meter)
-        dy         = 0.03                    # translation axis Y (meter)
-        dwx        = 8.0*almath.TO_RAD       # rotation axis X (rad)
-        dwy        = 8.0*almath.TO_RAD       # rotation axis Y (rad)
-
-        # point 01 : forward  / bend backward
-        target1Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
-        target1Tf *= almath.Transform(dx, 0.0, 0.0)
-        target1Tf *= almath.Transform().fromRotY(-dwy)
-
-        # point 02 : right    / bend left
-        target2Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
-        target2Tf *= almath.Transform(0.0, -dy, 0.0)
-        target2Tf *= almath.Transform().fromRotX(-dwx)
-
-        # point 03 : backward / bend forward
-        target3Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
-        target3Tf *= almath.Transform(-dx, 0.0, 0.0)
-        target3Tf *= almath.Transform().fromRotY(dwy)
-
-        # point 04 : left     / bend right
-        target4Tf = almath.Transform(currentTf.r1_c4, currentTf.r2_c4, currentTf.r3_c4)
-        target4Tf *= almath.Transform(0.0, dy, 0.0)
-        target4Tf *= almath.Transform().fromRotX(dwx)
-
-        path = []
-        path.append(list(target1Tf.toVector()))
-        path.append(list(target2Tf.toVector()))
-        path.append(list(target3Tf.toVector()))
-        path.append(list(target4Tf.toVector()))
-
-        path.append(list(target1Tf.toVector()))
-        path.append(list(target2Tf.toVector()))
-        path.append(list(target3Tf.toVector()))
-        path.append(list(target4Tf.toVector()))
-
-        path.append(list(target1Tf.toVector()))
-        path.append(list(currentTf.toVector()))
-
-        timeOneMove  = 0.5 #seconds
-        times = []
-        for i in range(len(path)):
-            times.append((i+1)*timeOneMove)
-
-        # end define target, begin call motion api
-
-        # call the cartesian control API
-
-        motionProxy.transformInterpolations(effector, frame, path, axisMask, times)
-
-        # Go to rest position
-        motionProxy.rest()
 
 
     #############################
@@ -361,23 +356,23 @@ class Functions:
                 text.say('You seem to be lying!')
                 text.say(Dialog.random_joke(name_of_user))
                 #action Confused?
-                Functions.hulahoop(NAOIP, PORT)
+                hulahoop(NAOIP, PORT)
             else:
                 text.say('Let me try to cheer you up!')
                 text.say(Dialog.random_joke(name_of_user))
                 #action Hulahup?
-                Functions.hulahoop(NAOIP, PORT)
+                hulahoop(NAOIP, PORT)
         else:
             if emotion == 'happy':
                 text.say('I am glad that you are in a good mood!')
                 text.say(Dialog.random_joke(name_of_user))
                 #action Excited?
-                Functions.hulahoop(NAOIP, PORT)
+                hulahoop(NAOIP, PORT)
             else:
                 text.say('Hmm your expression earlier told me otherwise.')
                 text.say(Dialog.random_joke(name_of_user))
                 #action Confused?
-                Functions.hulahoop(NAOIP, PORT)
+                hulahoop(NAOIP, PORT)
 
     @staticmethod
     # To-Do: Create new elif statements

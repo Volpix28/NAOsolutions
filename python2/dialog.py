@@ -6,6 +6,7 @@ class Dialog:
     sorry_message = ["Sorry, i didn't understand you, try again please!", "Sorry, i didn't understand you!", "Okay, i am sorry for that, please say your Name now."]
     conformation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " I will enter your Name into the knowledge data base."]
     user_deletion = ["Shall I delete your picture from my database? ", "Okay, that is a pity that I have to delete you now.", "I deleted you now."]
+    emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy!", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
 
     @staticmethod
     def experiment(name_of_user):
@@ -44,6 +45,18 @@ class Dialog:
     @staticmethod
     def greeting_known_person(name, emotion):
         return "Hey " + name + " long time no see!" + " You look rather " + emotion + " today."
+
+    @staticmethod
+    def invalid_emotion(name_of_user):
+        return "Please, say a number from 1 to 10 " + name_of_user + '.'
+
+    @staticmethod
+    def emotion_conformation(name_of_user, emotion_rating):
+        return 'Thank you for the information, ' + name_of_user + '. You said, ' + emotion_rating + ', I am right?'
+    
+    @staticmethod
+    def emotion_invalid_confirmation(emotion_rating):
+        return "Your Mood is on a scale from 1 to 10, " + emotion_rating + ". Please say, yes or no!"
 
     @staticmethod
     def random_joke(name):
