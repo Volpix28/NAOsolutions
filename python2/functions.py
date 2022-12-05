@@ -301,12 +301,10 @@ class Functions:
                 #action Confused?
 
     @staticmethod
-    # To-Do: Create new elif statements
-    #Caught all possible outcomes?
     def emotionchange(emotion, emotion2):
-        negative = ['angry', 'disgust', 'fear', 'sad', 'surprised']
+        negative = ['angry', 'disgust', 'fear', 'sad']
         neutral = ['neutral']
-        positive = ['happy']
+        positive = ['happy', 'surprised']
         if emotion in positive and emotion2 in positive:
             text.say('I am glad I could keep you happy.')
         
