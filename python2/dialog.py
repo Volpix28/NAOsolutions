@@ -12,7 +12,12 @@ class Dialog:
                 "How do you drown a hipster? You throw him in the mainstream.",
                 "What do you call a pony with a cough? A little horse.",
                 "Why do bees have sticky hair? Because they use honeycombs.",
-                "What are sharks two most favorite words? Man overboard!"
+                "What are sharks two most favorite words? Man overboard!",
+                "How does the ocean say hi? It waves!",
+                "What kind of keys are sweet? Cookies!",
+                "What is a computer's favorite snack? Computer chips.",
+                "What is the most famous fish? A starfish!",
+                "Where do fish sleep? In the riverbed."
                 ]
 
     @staticmethod
