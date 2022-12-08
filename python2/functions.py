@@ -462,7 +462,7 @@ class Functions:
     @staticmethod
     def action(emotion_number, emotion, name_of_user):
         if emotion_number in [1,2,3,4,5]:
-            if emotion == 'happy':
+            if emotion in ['happy', 'surprised']:
                 text.say('You seem to be lying!')
                 text.say(Dialog.random_joke(name_of_user))
                 #action Confused?
@@ -475,7 +475,7 @@ class Functions:
                 #hulahoop(NAOIP, PORT)
                 dance(NAOIP, PORT)
         else:
-            if emotion == 'happy':
+            if emotion in ['happy', 'surprised']:
                 text.say('I am glad that you are in a good mood!')
                 text.say(Dialog.random_joke(name_of_user))
                 #action Excited?
