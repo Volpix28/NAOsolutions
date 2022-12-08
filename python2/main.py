@@ -72,12 +72,14 @@ Functions.action(manual_emotion_rating, emotion, name)
 # text.say('Let me take another picture so I can see if your mood changed.')
 
 #Take another picture to check if mood changed
-#Change variable names or no need?
 result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, camera, resolution, colorSpace, images_folder)
 
 emotion2 = str(result_ed[u'dominant_emotion'])
 
 print('emotion before action: ' + emotion + ' emotion after action: ' +  emotion2 + ' manual emotion rating: ' + str(manual_emotion_rating))
+
+#Convert emotions to integers
+#Write function to save emotions before and after action and manual emotion rating into a file
 
 Functions.emotionchange(emotion, emotion2)
 

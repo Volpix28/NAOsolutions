@@ -7,6 +7,13 @@ class Dialog:
     conformation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " I will enter your Name into the knowledge data base."]
     user_deletion = ["Shall I delete your picture from my database? ", "Okay, that is a pity that I have to delete you now.", "I deleted you now."]
     emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy!", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
+    jokes = [
+                "Why do pirates not take a shower when they walk the plank? They just wash up on shore.",
+                "How do you drown a hipster? You throw him in the mainstream.",
+                "What do you call a pony with a cough? A little horse.",
+                "Why do bees have sticky hair? Because they use honeycombs.",
+                "What are sharks two most favorite words? Man overboard!"
+                ]
 
     @staticmethod
     def experiment(name_of_user):
@@ -60,13 +67,6 @@ class Dialog:
 
     @staticmethod
     def random_joke(name):
-        jokes = [
-                "Why do pirates not take a shower when they walk the plank? They just wash up on shore.",
-                "How do you drown a hipster? You throw him in the mainstream.",
-                "What do you call a pony with a cough? A little horse.",
-                "Why do bees have sticky hair? Because they use honeycombs.",
-                "What are sharks two most favorite words? Man overboard!"
-                ]
         secure_random = random.SystemRandom()
-        joke = secure_random.choice(jokes)
+        joke = secure_random.choice(Dialog.jokes)
         return "Hey " + name + "! " + joke
