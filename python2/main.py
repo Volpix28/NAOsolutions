@@ -12,7 +12,6 @@ from scipy.io.wavfile import write
 
 #Costum dialogs
 from dialog import Dialog
-Dialog = Dialog()
 
 #costum functions
 from functions import Functions
