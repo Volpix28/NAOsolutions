@@ -233,16 +233,18 @@ class Functions:
 
     # TODO Check if it's possible to access entertainment/moods choreograph-functions in python // jokes
     @staticmethod
-    def action(MOTIONPROXY, POSTUREPROXY, text, emotion_number, emotion, name_of_user):
+    def action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, text, emotion_number, emotion, name_of_user):
         if emotion_number in range(1,6):
             if emotion in ['happy', 'surprised']:
                 text.say('You seem to be lying! ')
                 text.say(Dialog.random_joke(name_of_user))
+                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Confused?
                 Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
             else:
                 text.say('Let me try to cheer you up! ')
                 text.say(Dialog.random_joke(name_of_user))
+                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Hulahup?
                 # hulahoop(NAOIP, PORT)
                 Actions.dance(MOTIONPROXY)
@@ -250,12 +252,14 @@ class Functions:
             if emotion in ['happy', 'surprised']:
                 text.say('I am glad that you are in a good mood! ')
                 text.say(Dialog.random_joke(name_of_user))
+                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Excited?
                 # hulahoop(NAOIP, PORT)
                 Actions.dance(MOTIONPROXY)
             else:
                 text.say('Hmm your expression earlier told me otherwise. ')
                 text.say(Dialog.random_joke(name_of_user))
+                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Confused?
                 Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
                 
