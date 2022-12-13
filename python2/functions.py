@@ -17,6 +17,54 @@ from actions import Actions #costum Actions
 def getTimestamp():
     return str(calendar.timegm(time.gmtime()))
 
+#get Behavior names
+def getBehaviors(managerProxy):
+  ''' Know which behaviors are on the robot '''
+
+  names = managerProxy.getInstalledBehaviors()
+  print "Behaviors on the robot:"
+  print names
+
+  names = managerProxy.getRunningBehaviors()
+  print "Running behaviors:"
+  print names
+
+
+def launchAndStopBehavior(MANAGERPROXY, behaviorName, time_for_behavior):
+  ''' Launch and stop a behavior, if possible. '''
+
+  # Check that the behavior exists.
+  if (MANAGERPROXY.isBehaviorInstalled(behaviorName)):
+
+    # Check that it is not already running.
+    if (not MANAGERPROXY.isBehaviorRunning(behaviorName)):
+      # Launch behavior. This is a blocking call, use post if you do not
+      # want to wait for the behavior to finish.
+      MANAGERPROXY.post.runBehavior(behaviorName)
+      time.sleep(time_for_behavior)
+    else:
+      print "Behavior is already running."
+
+  else:
+    print "Behavior not found."
+    return
+
+  names = MANAGERPROXY.getRunningBehaviors()
+  print "Running behaviors:"
+  print names
+
+  # Stop the behavior.
+  if (MANAGERPROXY.isBehaviorRunning(behaviorName)):
+    MANAGERPROXY.stopBehavior(behaviorName)
+    time.sleep(1.0)
+  else:
+    print "Behavior is already stopped."
+
+  names = MANAGERPROXY.getRunningBehaviors()
+  print "Running behaviors:"
+  print names
+
+
 class Functions:
     @staticmethod
     def emotionDetectionWithPic(NAOIP, PORT, BASE_API, text, camera, resolution, colorSpace, images_folder):
@@ -258,20 +306,22 @@ class Functions:
 
     # TODO Check if it's possible to access entertainment/moods choreograph-functions in python // jokes
     @staticmethod
-    def action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, text, emotion_number, emotion, name_of_user):
+    def action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, MANAGERPROXY, text, emotion_number, emotion, name_of_user):
         if emotion_number in range(1,6):
             if emotion in ['happy', 'surprised']:
                 text.say('You seem to be lying! ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Confused?
-                Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
+                time_for_bow = 5
+                #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
+                #Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
+                Actions.dance(MOTIONPROXY)
             else:
                 text.say('Let me try to cheer you up! ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
-                # action Hulahup?
-                # hulahoop(NAOIP, PORT)
+                launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 Actions.dance(MOTIONPROXY)
         else:
             if emotion in ['happy', 'surprised']:
@@ -280,13 +330,16 @@ class Functions:
                 SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Excited?
                 # hulahoop(NAOIP, PORT)
+                #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 Actions.dance(MOTIONPROXY)
             else:
                 text.say('Hmm your expression earlier told me otherwise. ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
                 # action Confused?
-                Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
+                #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
+                #Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
+                Actions.dance(MOTIONPROXY)
                 
 
     @staticmethod

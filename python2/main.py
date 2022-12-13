@@ -22,6 +22,7 @@ TEXTPROXY.setParameter("speed", 85)
 POSTUREPROXY = ALProxy('ALRobotPosture', NAOIP, PORT)
 MOTIONPROXY = ALProxy('ALMotion', NAOIP, PORT)
 SOUNDPROXY = ALProxy("ALAudioPlayer", NAOIP, PORT)
+MANAGERPROXY = ALProxy("ALBehaviorManager", NAOIP, PORT)
 
 fileshare = os.path.join(os.getcwd(), 'fileshare')
 images_folder = os.path.join(fileshare, 'images')
@@ -62,7 +63,7 @@ else:
 user_numeric_emotion = Functions.manual_emotion(NAOIP, PORT, PASSWD, NAME, TEXTPROXY, name_of_user)
 
 #Set action based on mood
-Functions.action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, TEXTPROXY, user_numeric_emotion, emotion_before_action, name_of_user)
+Functions.action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, MANAGERPROXY, TEXTPROXY, user_numeric_emotion, emotion_before_action, name_of_user)
 
 # Line below needed?
 # TEXTPROXY.say('Let me take another picture so I can see if your mood changed.')
