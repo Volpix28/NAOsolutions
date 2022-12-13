@@ -4,8 +4,8 @@ class Dialog:
     welcome = "Hi, I am NAO. I hope you are having a good day."
     say_name = "Please say your name now."
     sorry_message = ["Sorry, i didn't understand you, try again please!", "Sorry, i didn't understand you!", "Okay, i am sorry for that, please say your Name now."]
-    conformation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " I will enter your Name into the knowledge data base."]
-    user_deletion = ["Shall I delete your picture from my database? ", "Okay, that is a pity that I have to delete you now.", "I deleted you now."]
+    confirmation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " I will enter your Name into the knowledge data base."]
+    user_selection = ["Shall I delete your picture from my database? ", "Okay, that is a pity that I have to delete you now.", "I deleted you now."]
     emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy!", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
     jokes = [
                 "Why do pirates not take a shower when they walk the plank? They just wash up on shore.",
@@ -26,23 +26,23 @@ class Dialog:
 
 
     @staticmethod
-    def conformation_message_with_name(name_of_user):
-        return Dialog.conformation_message[0] + name_of_user + Dialog.conformation_message[1]
+    def confirmation_message_with_name(name_of_user):
+        return Dialog.confirmation_message[0] + name_of_user + Dialog.confirmation_message[1]
 
 
     @staticmethod
     def confirm_loop_with_name(name_of_user):
-        return Dialog.conformation_message[0] + name_of_user + Dialog.conformation_message[1] + Dialog.conformation_message[2]
+        return Dialog.confirmation_message[0] + name_of_user + Dialog.confirmation_message[1] + Dialog.confirmation_message[2]
 
 
     @staticmethod
     def knownledge_base_entry(name_of_user):
-        return Dialog.conformation_message[3] + name_of_user + Dialog.conformation_message[4]
+        return Dialog.confirmation_message[3] + name_of_user + Dialog.confirmation_message[4]
 
 
     @staticmethod
     def confirm_user_deletion_loop(name_of_user):
-        return Dialog.conformation_message[2] + " " + name_of_user + " ."
+        return Dialog.confirmation_message[2] + " " + name_of_user + " ."
 
 
     @staticmethod
@@ -63,7 +63,7 @@ class Dialog:
         return "Please, say a number from 1 to 10 " + name_of_user + '.'
 
     @staticmethod
-    def emotion_conformation(name_of_user, emotion_rating):
+    def emotion_confirmation(name_of_user, emotion_rating):
         return 'Thank you for the information, ' + name_of_user + '. You said, ' + emotion_rating + ', I am right?'
     
     @staticmethod

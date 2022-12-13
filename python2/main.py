@@ -1,29 +1,18 @@
-# Imports
-import time
-import calendar
 import requests
 import os
 import ast
-import speech_recognition as sr
-# Python Image Library
-from PIL import Image # works only in local env
 from naoqi import ALProxy
 from scipy.io.wavfile import write
-
-#Costum dialogs
-from dialog import Dialog
-
-#costum functions
-from functions import Functions
-Functions = Functions()
+from dialog import Dialog  # custom dialogs
+from functions import Functions  # custom functions
 
 
 # Connection settings
-NAOIP = '192.168.0.243'
+NAOIP = '192.168.8.105'
 PORT = 9559
 NAME = "nao"
-passwd = "19981"
-BASE_API = 'http://192.168.0.213:5000'
+PASSWD = "19981"
+BASE_API = 'http://192.168.8.120:5000'
 
 # Test
 tts = 'ALTextToSpeech'
@@ -43,7 +32,7 @@ colorSpace = 11 # http://doc.aldebaran.com/2-5/family/robots/video_robot.html#ca
 ##########################
 
 text.say(Dialog.welcome)
-result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, camera, resolution, colorSpace, images_folder)
+result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, BASE_API, text, camera, resolution, colorSpace, images_folder)
     
 response_fr = requests.get(BASE_API + '/facerecognition/' + naoImage)
 result_fr = ast.literal_eval(response_fr.json())
@@ -53,33 +42,35 @@ emotion = str(result_ed[u'dominant_emotion'])
 
 if result_fr['name'] == 'not_found':
     text.say(Dialog.name_question(gender))
-    name = Functions.get_and_save_name(NAOIP, PORT)
+    name_of_user = Functions.get_and_save_name(NAOIP, PORT, PASSWD, NAME, text)
     img_id = result_fr['img_id']
-    requests.get(BASE_API + '/addname/' + name + '/' + naoImage)
+    requests.get(BASE_API + '/addname/' + name_of_user + '/' + naoImage)
 else:
-    name = result_fr['name']
+    name_of_user = result_fr['name']
     img_id = result_fr['img_id']
-    text.say(Dialog.greeting_known_person(name, emotion))
-    Functions.delete_user(name, img_id)
+    text.say(Dialog.greeting_known_person(name_of_user, emotion))
+    Functions.delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, text, name_of_user, img_id)
 
-manual_emotion_rating = Functions.manual_emotion(name)
+manual_emotion_rating = Functions.manual_emotion(NAOIP, PORT, PASSWD, NAME, text, name_of_user)
 
 #Set action based on mood
-Functions.action(manual_emotion_rating, emotion, name)
+Functions.action(NAOIP, PORT, text, manual_emotion_rating, emotion, name_of_user)
 
 # Line below needed?
 # text.say('Let me take another picture so I can see if your mood changed.')
 
 #Take another picture to check if mood changed
-result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, camera, resolution, colorSpace, images_folder)
+result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, BASE_API, text, camera, resolution, colorSpace, images_folder)
 
 emotion2 = str(result_ed[u'dominant_emotion'])
 
 print('emotion before action: ' + emotion + ' emotion after action: ' +  emotion2 + ' manual emotion rating: ' + str(manual_emotion_rating))
 
+
+
 #Convert emotions to integers
 #Write function to save emotions before and after action and manual emotion rating into a file
 
-Functions.emotionchange(emotion, emotion2)
+Functions.emotionchange(emotion, emotion2, text)
 
 #DELETE USER?
