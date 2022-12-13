@@ -2,6 +2,7 @@ devcontainer.json
 test.*
 *.PNG
 *.jpg
-fileshare
+fileshare/knowledge_base
+fileshare/images
 .DS_STORE
 *.pyc
