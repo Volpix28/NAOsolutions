@@ -7,5 +7,5 @@ sklearn
 paramiko
 flask
 requests
-SpeechRecognition
+SpeechRecognition==3.8.1
 scipy
