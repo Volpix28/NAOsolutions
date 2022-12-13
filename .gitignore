@@ -4,3 +4,4 @@ test.*
 *.jpg
 fileshare
 .DS_STORE
+*.pyc
