@@ -165,6 +165,31 @@ class Functions:
             text.say(Dialog.no_deletion(user_name))
 
 
+    ###############################
+    # ADD NAME TO KNOWNLEDGE BASE #
+    ###############################
+
+    @staticmethod
+    def data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, naoImage):
+        text.say('Is it okay for you, if I save your data for face recognition and analytics?')
+        recording = Functions.record_audio(NAOIP, PORT, 2)
+        user_selection = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
+        user_approval = False
+        while user_selection not in ['yes', 'no', 'nope']:
+            text.say(Dialog.confirm_user_deletion_loop(user_name))
+            recording = Functions.record_audio(NAOIP, PORT, 2)
+            user_selection = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
+            print('INFO: ', user_selection)
+        if user_selection == 'yes':
+            text.say('Very good! Next time I will remember your name')
+            requests.get(BASE_API + '/addname/' + user_name + '/' + naoImage)
+            user_approval = True
+        else:
+            user_approval = False
+            text.say('Okay, thats too bad. After this session all your data will be cleaned.')
+        return user_approval
+
+
     #############################
     # MANUAL EMOTION DETECTION #
     #############################

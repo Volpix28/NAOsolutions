@@ -1,10 +1,10 @@
 import random
 
 class Dialog:
-    welcome = "Hi, I am NAO. I hope you are having a good day."
+    welcome = "Hi, I am NAO. I hope you are having a good day. For this experiment I will take pictures of you to recognize you and your emotion."
     say_name = "Please say your name now."
     sorry_message = ["Sorry, i didn't understand you, try again please!", "Sorry, i didn't understand you!", "Okay, i am sorry for that, please say your Name now."]
-    confirmation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " I will enter your Name into the knowledge data base."]
+    confirmation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " nice to meet you."]
     user_selection = ["Shall I delete your picture from my database? ", "Okay, that is a pity that I have to delete you now.", "I deleted you now."]
     emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy!", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
     jokes = [

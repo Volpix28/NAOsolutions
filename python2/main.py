@@ -17,7 +17,7 @@ BASE_API = 'http://192.168.8.120:5000'
 
 # Proxy
 TEXTPROXY = ALProxy('ALTextToSpeech', NAOIP, PORT)
-TEXTPROXY.setParameter("speed", 80)
+TEXTPROXY.setParameter("speed", 85)
 
 POSTUREPROXY = ALProxy('ALRobotPosture', NAOIP, PORT)
 MOTIONPROXY = ALProxy('ALMotion', NAOIP, PORT)
@@ -50,13 +50,15 @@ if result_fr['name'] == 'not_found':
     TEXTPROXY.say(Dialog.name_question(gender))
     name_of_user = Functions.get_and_save_name(NAOIP, PORT, PASSWD, NAME, TEXTPROXY)
     img_id = result_fr['img_id']
-    requests.get(BASE_API + '/addname/' + name_of_user + '/' + naoImage)
+    # if answer is yes:
+    user_approval =  Functions.data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, naoImage)
+    print(user_approval)
 else:
     name_of_user = result_fr['name']
     img_id = result_fr['img_id']
     TEXTPROXY.say(Dialog.greeting_known_person(name_of_user, emotion_before_action))
     Functions.delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, img_id)
-
+    
 user_numeric_emotion = Functions.manual_emotion(NAOIP, PORT, PASSWD, NAME, TEXTPROXY, name_of_user)
 
 #Set action based on mood
@@ -77,11 +79,12 @@ Functions.emotionchange(emotion_before_action, emotion_after_action, TEXTPROXY)
 
 print('emotion before action: ' + emotion_before_action + ' emotion after action: ' +  emotion_after_action + ' manual emotion rating: ' + str(user_numeric_emotion))
 
-add = [emotion_before_action, emotion_after_action, user_numeric_emotion, gender]
-with open(runs, 'a') as f_object:
-    writer_object = writer(f_object)
-    writer_object.writerow(add)
-    f_object.close()
+if user_approval == True:
+    add = [emotion_before_action, emotion_after_action, user_numeric_emotion, gender]
+    with open(runs, 'a') as f_object:
+        writer_object = writer(f_object)
+        writer_object.writerow(add)
+        f_object.close()
 
 #clean session
 requests.get(BASE_API + '/cleansession')
