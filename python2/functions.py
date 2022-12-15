@@ -1,7 +1,6 @@
 import time
 import calendar
 import requests
-#IMPORTS
 import os
 import ast
 import speech_recognition as sr
@@ -17,17 +16,15 @@ from actions import Actions #costum Actions
 def getTimestamp():
     return str(calendar.timegm(time.gmtime()))
 
-#get Behavior names
+
+# get Behavior names
 def getBehaviors(managerProxy):
   ''' Know which behaviors are on the robot '''
-
+  
   names = managerProxy.getInstalledBehaviors()
-  print "Behaviors on the robot:"
-  print names
-
+  print('Behaviors on the robot: ', names)
   names = managerProxy.getRunningBehaviors()
-  print "Running behaviors:"
-  print names
+  print('Running behaviors: ', names)
 
 
 def launchAndStopBehavior(MANAGERPROXY, behaviorName, time_for_behavior):
@@ -43,26 +40,26 @@ def launchAndStopBehavior(MANAGERPROXY, behaviorName, time_for_behavior):
       MANAGERPROXY.post.runBehavior(behaviorName)
       time.sleep(time_for_behavior)
     else:
-      print "Behavior is already running."
+      print('Behavior is already running.')
 
   else:
-    print "Behavior not found."
+    print('Behavior not found.')
     return
 
   names = MANAGERPROXY.getRunningBehaviors()
-  print "Running behaviors:"
-  print names
+  print('Running behaviors:')
+  print(names)
 
   # Stop the behavior.
   if (MANAGERPROXY.isBehaviorRunning(behaviorName)):
     MANAGERPROXY.stopBehavior(behaviorName)
     time.sleep(1.0)
   else:
-    print "Behavior is already stopped."
+    print('Behavior is already stopped.')
 
   names = MANAGERPROXY.getRunningBehaviors()
-  print "Running behaviors:"
-  print names
+  print('Running behaviors:')
+  print(names)
 
 
 class Functions:
@@ -311,7 +308,7 @@ class Functions:
             if emotion in ['happy', 'surprised']:
                 text.say('You seem to be lying! ')
                 text.say(Dialog.random_joke(name_of_user))
-                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
+                SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
                 # action Confused?
                 time_for_bow = 5
                 #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
@@ -320,14 +317,14 @@ class Functions:
             else:
                 text.say('Let me try to cheer you up! ')
                 text.say(Dialog.random_joke(name_of_user))
-                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
+                SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
                 launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 Actions.dance(MOTIONPROXY)
         else:
             if emotion in ['happy', 'surprised']:
                 text.say('I am glad that you are in a good mood! ')
                 text.say(Dialog.random_joke(name_of_user))
-                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
+                SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
                 # action Excited?
                 # hulahoop(NAOIP, PORT)
                 #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
@@ -335,7 +332,7 @@ class Functions:
             else:
                 text.say('Hmm your expression earlier told me otherwise. ')
                 text.say(Dialog.random_joke(name_of_user))
-                SOUNDPROXY.post.playFile("/home/nao/nao_solutions/sound_effects/badumtss.wav", 1, 0.0) 
+                SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
                 # action Confused?
                 #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 #Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
