@@ -42,9 +42,8 @@ def createCsv(dir, *files):
             elif f == 'runs.csv':
                 df = pd.DataFrame(columns=['BEFORE_ACTION', 'AFTER_ACTION', 'USER_NUMERIC_EMOTION', 'GENDER'])
             else:
-                with open(file_path, 'w'):
-                    pass
-            df.to_csv(file_path, index=False)  # does nothing if df isnt set
+                df = pd.DataFrame({})
+            df.to_csv(file_path, index=False)
             print('INFO - createCsvfiles: %s created' % file_path)
     else:
         print('INFO - createCsvfiles: file(s) %s already exists' % exist)
