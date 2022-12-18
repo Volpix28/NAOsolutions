@@ -311,13 +311,14 @@ class Functions:
                 SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
                 # action Confused?
                 time_for_bow = 5
-                #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
+                launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 #Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
                 Actions.dance(MOTIONPROXY)
             else:
                 text.say('Let me try to cheer you up! ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
+                time_for_bow = 5
                 launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 Actions.dance(MOTIONPROXY)
         else:
