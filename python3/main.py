@@ -31,7 +31,7 @@ def createFolders(dir, *subfolders: str):
         os.makedirs(subfolder, exist_ok=True)
 
 
-def createCsv(dir, *files):
+def createCsv(dir, *files: str):
     exist = [f for f in files if os.path.isfile(dir + os.sep + f)]
     non_exist = list(set(exist) ^ set(files))  # Symmetric Difference
     if len(non_exist) != 0:
