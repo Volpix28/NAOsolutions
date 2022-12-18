@@ -6,6 +6,7 @@ import pandas as pd
 import os
 import json
 
+
 def moveFile(source, dest):
     '''
     Move single file from source to destination.
@@ -19,7 +20,7 @@ def moveFile(source, dest):
         print(f'ERROR: {err}')
 
 
-def createFolders(dir, subfolders):
+def createFolders(dir, *subfolders: str):
     '''
     Creates one or more directories if not existent.
     dir: absolute path
@@ -30,26 +31,32 @@ def createFolders(dir, subfolders):
         os.makedirs(subfolder, exist_ok=True)
 
 
-def createNamesCsv(dir):
-    '''
-    Creates names.csv file with column header.
-    '''
-    file_name = dir + os.sep + 'names.csv'
-    if os.path.exists(file_name):
-        print('INFO - createNamesCsv: names.csv already exists')
+def createCsv(dir, *files):
+    exist = [f for f in files if os.path.isfile(dir + os.sep + f)]
+    non_exist = list(set(exist) ^ set(files))  # Symmetric Difference
+    if len(non_exist) != 0:
+        for f in non_exist:
+            file_path = dir + os.sep + f
+            if f == 'names.csv':
+                df = pd.DataFrame(columns=['IMG', 'NAME'])
+            elif f == 'runs.csv':
+                df = pd.DataFrame(columns=['BEFORE_ACTION', 'AFTER_ACTION', 'USER_NUMERIC_EMOTION', 'GENDER'])
+            else:
+                with open(file_path, 'w'):
+                    pass
+            df.to_csv(file_path, index=False)  # does nothing if df isnt set
+            print('INFO - createCsvfiles: %s created' % file_path)
     else:
-        df = pd.DataFrame(columns=['IMG', 'NAME'])
-        df.to_csv(file_name, index=False)
-        print('INFO - createNamesCsv: names.csv created')
+        print('INFO - createCsvfiles: file(s) %s already exists' % exist)
 
 
 app = Flask(__name__)
 api = Api(app)
 
 # create fileshare with 'images' and 'knowledge_base' subfolder if not existent
-createFolders('fileshare', ['images', 'knowledge_base'])
+createFolders('fileshare', 'images', 'knowledge_base')
 fileshare = os.path.join(os.getcwd(), 'fileshare')
-createNamesCsv(fileshare)
+createCsv(fileshare, 'names.csv', 'runs.csv')
 names_csv = os.path.join(fileshare + os.sep + 'names.csv')
 knowledge_base = os.path.join(fileshare, 'knowledge_base')
 images_folder = os.path.join(fileshare, 'images')
@@ -57,10 +64,10 @@ images_folder = os.path.join(fileshare, 'images')
 
 class EmotionDetection(Resource):
     def get(self, img_name):
-        obj = DeepFace.analyze(img_path=images_folder + os.sep + img_name, 
+        obj = DeepFace.analyze(img_path=images_folder + os.sep + img_name,
                                actions=['gender', 'emotion'])
         obj_filtered = {'dominant_emotion': obj['dominant_emotion'], 'gender': obj['gender']}
-        json_object = json.dumps(obj_filtered, indent = 4)
+        json_object = json.dumps(obj_filtered, indent=4)
         return json_object
 
 
@@ -80,7 +87,7 @@ class FaceRecognition(Resource):
                 img_id = known_images[i]
                 break
         # os.remove(images_folder + os.sep + img_name)
-        json_object = json.dumps({'name': name, 'img_id': img_id}, indent = 4)
+        json_object = json.dumps({'name': name, 'img_id': img_id}, indent=4)
         return json_object
 
 
@@ -123,12 +130,12 @@ class CleanSession(Resource):
 
 
 # add this resource to the api and make it accessable through URL
-api.add_resource(EmotionDetection, "/emotiondetection/<string:img_name>")  # add parameters with /<int:test>/...
-api.add_resource(FaceRecognition, "/facerecognition/<string:img_name>")
-api.add_resource(AddName, "/addname/<string:person_name>/<string:img_name>")
-api.add_resource(DeletePerson, "/deleteperson/<string:img_id>")
-api.add_resource(CleanSession, "/cleansession")
+api.add_resource(EmotionDetection, '/emotiondetection/<string:img_name>')  # add parameters with /<int:test>/...
+api.add_resource(FaceRecognition, '/facerecognition/<string:img_name>')
+api.add_resource(AddName, '/addname/<string:person_name>/<string:img_name>')
+api.add_resource(DeletePerson, '/deleteperson/<string:img_id>')
+api.add_resource(CleanSession, '/cleansession')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
