@@ -44,9 +44,9 @@ def createCsv(dir, *files: str):
             else:
                 df = pd.DataFrame({})
             df.to_csv(file_path, index=False)
-            print('INFO - createCsvfiles: %s created' % file_path)
+            print('INFO - createCsv: %s created' % file_path)
     else:
-        print('INFO - createCsvfiles: file(s) %s already exists' % exist)
+        print('INFO - createCsv: file(s) %s already exists' % exist)
 
 
 app = Flask(__name__)
