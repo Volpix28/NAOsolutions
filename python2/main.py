@@ -9,11 +9,11 @@ from functions import Functions  # custom functions
 
 
 # Connection settings
-NAOIP = '192.168.8.105'
+NAOIP = '10.0.0.14' 
 PORT = 9559
 NAME = "nao"
 PASSWD = "19981"
-BASE_API = 'http://192.168.8.120:5000'
+BASE_API = 'http://10.0.0.12:5000'
 
 # Proxy
 TEXTPROXY = ALProxy('ALTextToSpeech', NAOIP, PORT)
@@ -28,6 +28,8 @@ fileshare = os.path.join(os.getcwd(), 'fileshare')
 images_folder = os.path.join(fileshare, 'images')
 runs = os.path.join(fileshare, 'runs.csv')
 
+#to be reviewed
+user_approval = True
 
 # NAO picture config
 camera = 0 # 0 = top camera, 1 = bottom camera
