@@ -5,7 +5,7 @@ class Dialog:
     say_name = "Please say your name now."
     sorry_message = ["Sorry, i didn't understand you, try again please!", "Sorry, i didn't understand you!", "Okay, i am sorry for that, please say your Name now."]
     confirmation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " nice to meet you."]
-    user_selection = ["Shall I delete your picture from my database? ", "Okay, that is a pity that I have to delete you now.", "I deleted you now."]
+    user_selection = ["Shall I delete your picture from my database? ", "Okay, that is a pity. I will delete all stored data related to you.", "I deleted the data now."]
     emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy!", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
     jokes = [
                 "Why do pirates not take a shower when they walk the plank? They just wash up on shore.",

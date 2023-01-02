@@ -28,8 +28,8 @@ fileshare = os.path.join(os.getcwd(), 'fileshare')
 images_folder = os.path.join(fileshare, 'images')
 runs = os.path.join(fileshare, 'runs.csv')
 
-#to be reviewed
-user_approval = True
+# default for data storing 
+data_save_approval = True
 
 # NAO picture config
 camera = 0 # 0 = top camera, 1 = bottom camera
@@ -45,23 +45,21 @@ result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, BASE_API, T
     
 response_fr = requests.get(BASE_API + '/facerecognition/' + naoImage)
 result_fr = ast.literal_eval(response_fr.json())
-print(result_fr)
 gender = str(result_ed[u'gender'])
 emotion_before_action = str(result_ed[u'dominant_emotion'])
+img_id = result_fr['img_id']
 
 if result_fr['name'] == 'not_found':
     TEXTPROXY.say(Dialog.name_question(gender))
     name_of_user = Functions.get_and_save_name(NAOIP, PORT, PASSWD, NAME, TEXTPROXY)
-    img_id = result_fr['img_id']
     # if answer is yes:
-    user_approval =  Functions.data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, naoImage)
-    print(user_approval)
+    data_save_approval = Functions.data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, naoImage, data_save_approval)
 else:
     name_of_user = result_fr['name']
-    img_id = result_fr['img_id']
     TEXTPROXY.say(Dialog.greeting_known_person(name_of_user, emotion_before_action))
-    Functions.delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, img_id)
+    data_save_approval = Functions.delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, img_id, data_save_approval)
     
+print('\nUser approved storing data:' + data_save_approval)
 user_numeric_emotion = Functions.manual_emotion(NAOIP, PORT, PASSWD, NAME, TEXTPROXY, name_of_user)
 
 #Set action based on mood
@@ -82,7 +80,7 @@ Functions.emotionchange(emotion_before_action, emotion_after_action, TEXTPROXY)
 
 print('emotion before action: ' + emotion_before_action + ' emotion after action: ' +  emotion_after_action + ' manual emotion rating: ' + str(user_numeric_emotion))
 
-if user_approval == True:
+if data_save_approval == True:
     add = [emotion_before_action, emotion_after_action, user_numeric_emotion, gender]
     with open(runs, 'a') as f_object:
         writer_object = writer(f_object)

@@ -68,7 +68,7 @@ class Functions:
         naoImage = Functions.takePicture(NAOIP, PORT, camera, resolution, colorSpace, images_folder) 
         response_ed = requests.get(BASE_API + '/emotiondetection/' + naoImage)
         while response_ed.status_code != 200:
-            text.say('Face not found.')
+            text.say('I cannot see you properly, please look at my head.')
             os.remove(os.path.join(images_folder, naoImage))
             try: 
                 naoImage = Functions.takePicture(NAOIP, PORT, camera, resolution, colorSpace, images_folder)
@@ -193,7 +193,7 @@ class Functions:
     ########################
 
     @staticmethod
-    def delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, img_id):
+    def delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, img_id, data_save_approval):
         text.say(Dialog.user_selection[0])
         recording = Functions.record_audio(NAOIP, PORT, 2)
         user_selection = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
@@ -206,8 +206,10 @@ class Functions:
             text.say(Dialog.user_selection[1])
             requests.get(BASE_API + '/deleteperson/' + img_id)
             text.say(Dialog.user_selection[2])
+            data_save_approval = False
         else:
             text.say(Dialog.no_deletion(user_name))
+        return data_save_approval
 
 
     ###############################
@@ -215,11 +217,10 @@ class Functions:
     ###############################
 
     @staticmethod
-    def data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, naoImage):
+    def data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, naoImage, default_approval):
         text.say('Is it okay for you, if I save your data for face recognition and analytics?')
         recording = Functions.record_audio(NAOIP, PORT, 2)
         user_selection = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
-        user_approval = False
         while user_selection not in ['yes', 'no', 'nope']:
             text.say(Dialog.confirm_user_deletion_loop(user_name))
             recording = Functions.record_audio(NAOIP, PORT, 2)
@@ -228,11 +229,11 @@ class Functions:
         if user_selection == 'yes':
             text.say('Very good! Next time I will remember your name')
             requests.get(BASE_API + '/addname/' + user_name + '/' + naoImage)
-            user_approval = True
+            default_approval = True
         else:
-            user_approval = False
+            default_approval = False
             text.say('Okay, thats too bad. After this session all your data will be cleaned.')
-        return user_approval
+        return default_approval
 
 
     #############################
