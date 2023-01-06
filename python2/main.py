@@ -59,7 +59,7 @@ else:
     TEXTPROXY.say(Dialog.greeting_known_person(name_of_user, emotion_before_action))
     data_save_approval = Functions.delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, img_id, data_save_approval)
     
-print('\nUser approved storing data:' + data_save_approval)
+print('\nUser approved storing data: ' + str(data_save_approval))
 user_numeric_emotion = Functions.manual_emotion(NAOIP, PORT, PASSWD, NAME, TEXTPROXY, name_of_user)
 
 #Set action based on mood
