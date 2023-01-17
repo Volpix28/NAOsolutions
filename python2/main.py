@@ -59,7 +59,7 @@ else:
     TEXTPROXY.say(Dialog.greeting_known_person(name_of_user, emotion_before_action))
     data_save_approval = Functions.delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, TEXTPROXY, name_of_user, img_id, data_save_approval)
     
-print('\nUser approved storing data:' + data_save_approval)
+print('\nUser approved storing data: ' + str(data_save_approval))
 user_numeric_emotion = Functions.manual_emotion(NAOIP, PORT, PASSWD, NAME, TEXTPROXY, name_of_user)
 
 #Set action based on mood
@@ -68,13 +68,13 @@ Functions.action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, MANAGERPROXY, TEXTPROXY,
 # Line below needed?
 # TEXTPROXY.say('Let me take another picture so I can see if your mood changed.')
 
-#Take another picture to check if mood changed
+# Take another picture to check if mood changed
 result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, BASE_API, TEXTPROXY, camera, resolution, colorSpace, images_folder)
 
 emotion_after_action = str(result_ed[u'dominant_emotion'])
 
-#Convert emotions to integers
-#Write function to save emotions before and after action and manual emotion rating into a file
+# Convert emotions to integers
+# Write function to save emotions before and after action and manual emotion rating into a file
 
 Functions.emotionchange(emotion_before_action, emotion_after_action, TEXTPROXY)
 
@@ -87,5 +87,5 @@ if data_save_approval == True:
         writer_object.writerow(add)
         f_object.close()
 
-#clean session
+# Clean session
 requests.get(BASE_API + '/cleansession')
