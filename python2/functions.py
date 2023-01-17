@@ -355,3 +355,26 @@ class Functions:
             text.say('Looks like I could not change your mood.')
         elif emotion in negative or neutral and emotion2 in positive:
             text.say('I am glad I could brighten up your mood.')
+
+    @staticmethod
+    def str_to_number(string):
+        if string == 'one':
+            string = '1'
+        elif string == 'two':
+            string = '2'
+        elif string == 'three':
+            string = '3'
+        elif string == 'four':
+            string = '4'
+        elif string == 'five' or string == 'fife':
+            string = '5'
+        elif string == 'six':
+            string = '6'
+        elif string == 'seven':
+            string = '7'
+        elif string == 'eight':
+            string = '8'
+        elif string == 'nine':
+            string = '9'
+        elif string == 'ten':
+            string = '10'
