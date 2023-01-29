@@ -6,16 +6,17 @@ from scipy.io.wavfile import write
 from csv import writer
 from dialog import Dialog  # custom dialogs
 from functions import Functions  # custom functions
+import time
 
 
 # Connection settings
-NAOIP = '10.0.0.14' 
+NAOIP = '192.168.43.23' 
 PORT = 9559
 NAME = "nao"
 PASSWD = "19981"
-BASE_API = 'http://10.0.0.12:5000'
+BASE_API = 'http://192.168.43.40:5000'
 
-# Proxy
+# Proxy 
 TEXTPROXY = ALProxy('ALTextToSpeech', NAOIP, PORT)
 TEXTPROXY.setParameter("speed", 85)
 
@@ -39,7 +40,7 @@ colorSpace = 11 # http://doc.aldebaran.com/2-5/family/robots/video_robot.html#ca
 ##########################
 # START OF CONVERSATION #
 ##########################
-
+time.sleep(3)
 TEXTPROXY.say(Dialog.welcome)
 result_ed, naoImage = Functions.emotionDetectionWithPic(NAOIP, PORT, BASE_API, TEXTPROXY, camera, resolution, colorSpace, images_folder)
     

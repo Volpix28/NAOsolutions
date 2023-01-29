@@ -174,8 +174,8 @@ class Functions:
                 text.say(Dialog.sorry_message[2])
                 recording = Functions.record_audio(NAOIP, PORT, 5)
                 name_of_user = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
-                name_of_user = Functions.name_loop(NAOIP, PORT, record_confirm_time, name_of_user)
-                confirmation = Functions.confirm(NAOIP, PORT, record_confirm_time, name_of_user)
+                name_of_user = Functions.name_loop(NAOIP, PORT, PASSWD, NAME, text, record_confirm_time, name_of_user)
+                confirmation = Functions.confirm(NAOIP, PORT, PASSWD, NAME, text, record_confirm_time, name_of_user)
         return name_of_user
 
     # MEGA FUNCTION !!!!
@@ -221,6 +221,7 @@ class Functions:
         text.say('Is it okay for you, if I save your data for face recognition and analytics?')
         recording = Functions.record_audio(NAOIP, PORT, 2)
         user_selection = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
+        print('user_selection:', user_selection)
         while user_selection not in ['yes', 'no', 'nope']:
             text.say(Dialog.confirm_user_deletion_loop(user_name))
             recording = Functions.record_audio(NAOIP, PORT, 2)
@@ -244,7 +245,15 @@ class Functions:
     def emotion_recording(NAOIP, PORT, PASSWD, NAME, text, record_name_time):
         text.say(Dialog.emotion_recording[0])
         recording = Functions.record_audio(NAOIP, PORT, record_name_time)
+        print('EMOTION RECORDING IS HERE')
         emotion_rating = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
+        try:
+            emotion_rating = emotion_rating.split(' ')[1]
+            print('before casting:', emotion_rating)
+            emotion_rating=Functions.str_to_number(emotion_rating)
+            print('after casting:', emotion_rating)
+        except:
+            emotion_rating = 'not_valid'
         return emotion_rating
 
     @staticmethod
@@ -253,6 +262,13 @@ class Functions:
             text.say(Dialog.invalid_emotion(name_of_user))
             recording = Functions.record_audio(NAOIP, PORT, record_name_time)
             emotion_rating = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
+            try:
+                emotion_rating = emotion_rating.split(' ')[1]
+                print('before casting:', emotion_rating)
+                emotion_rating=Functions.str_to_number(emotion_rating)
+                print('after casting:', emotion_rating)
+            except:
+                emotion_rating = 'not_valid'
         return emotion_rating
 
     @staticmethod
@@ -282,16 +298,16 @@ class Functions:
                 text.say(Dialog.emotion_recording[2])
                 recording = Functions.record_audio(NAOIP, PORT, 2)
                 emotion_rating = Functions.speech_recognition(recording, NAOIP, PASSWD, NAME)
-                emotion_rating = Functions.emotion_recording_loop(NAOIP, PORT, PASSWD, NAME, record_confirm_time, emotion_rating, name_of_user)
-                confirm_rating = Functions.confirm_emotion(NAOIP, PORT, PASSWD, NAME, record_confirm_time, emotion_rating, name_of_user)
-                confirm_rating = Functions.confirm_emotion_loop(NAOIP, PORT, PASSWD, NAME, record_confirm_time, confirm_rating, emotion_rating, name_of_user)
+                emotion_rating = Functions.emotion_recording_loop(NAOIP, PORT, PASSWD, NAME, text, record_confirm_time, emotion_rating, name_of_user)
+                confirm_rating = Functions.confirm_emotion(NAOIP, PORT, PASSWD, NAME, text, record_confirm_time, emotion_rating, name_of_user)
+                confirm_rating = Functions.confirm_emotion_loop(NAOIP, PORT, PASSWD, NAME, text, record_confirm_time, confirm_rating, emotion_rating)
         emotion_rating = int(emotion_rating)
         return emotion_rating
 
     @staticmethod
     def manual_emotion(NAOIP, PORT, PASSWD, NAME, text, name_of_user):
-        emotion_rating = Functions.emotion_recording(NAOIP, PORT, PASSWD, NAME, text, 2)
-        emotion_rating = Functions.emotion_recording_loop(NAOIP, PORT, PASSWD, NAME, text, 2, emotion_rating, name_of_user)
+        emotion_rating = Functions.emotion_recording(NAOIP, PORT, PASSWD, NAME, text, 4)
+        emotion_rating = Functions.emotion_recording_loop(NAOIP, PORT, PASSWD, NAME, text, 4, emotion_rating, name_of_user)
         confirm_rating = Functions.confirm_emotion(NAOIP, PORT, PASSWD, NAME, text, 2, emotion_rating, name_of_user)
         confirm_rating = Functions.confirm_emotion_loop(NAOIP, PORT, PASSWD, NAME, text, 2, confirm_rating, emotion_rating)
         final_emotion_rating = Functions.final_rating(NAOIP, PORT, PASSWD, NAME, text, 2, confirm_rating, emotion_rating, name_of_user)
@@ -306,7 +322,7 @@ class Functions:
     @staticmethod
     def action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, MANAGERPROXY, text, emotion_number, emotion, name_of_user):
         if emotion_number in range(1,6):
-            if emotion in ['happy', 'surprised']:
+            if emotion in ['happy', 'surprise']:
                 text.say('You seem to be lying! ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
@@ -323,7 +339,7 @@ class Functions:
                 launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
                 Actions.dance(MOTIONPROXY)
         else:
-            if emotion in ['happy', 'surprised']:
+            if emotion in ['happy', 'surprise']:
                 text.say('I am glad that you are in a good mood! ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
@@ -346,7 +362,7 @@ class Functions:
     def emotionchange(emotion, emotion2, text):
         negative = ['angry', 'disgust', 'fear', 'sad']
         neutral = ['neutral']
-        positive = ['happy', 'surprised']
+        positive = ['happy', 'surprise']
         if emotion in positive and emotion2 in positive:
             text.say('I am glad I could keep you happy.')
         elif emotion in positive and emotion2 not in positive:
@@ -355,26 +371,31 @@ class Functions:
             text.say('Looks like I could not change your mood.')
         elif emotion in negative or neutral and emotion2 in positive:
             text.say('I am glad I could brighten up your mood.')
+        elif emotion in negative or neutral and emotion2 in negative:
+            text.say('I hope your mood will get better anytime soon.')
 
     @staticmethod
-    def str_to_number(string):
-        if string == 'one':
-            string = '1'
-        elif string == 'two':
-            string = '2'
-        elif string == 'three':
-            string = '3'
-        elif string == 'four':
-            string = '4'
-        elif string == 'five' or string == 'fife':
-            string = '5'
-        elif string == 'six':
-            string = '6'
-        elif string == 'seven':
-            string = '7'
-        elif string == 'eight':
-            string = '8'
-        elif string == 'nine':
-            string = '9'
-        elif string == 'ten':
-            string = '10'
+    def str_to_number(number):
+        if number in ['pen', '10', 'ten']:
+            number = '10'
+        elif number in ['wine', '9', 'mine', 'nine']:
+            number = '9'
+        elif number in ['eight', '8', 'ate']:
+            number = '8'
+        elif number in ['seven', '7', 'heaven']:
+            number = '7'
+        elif number in ['six', '6']:
+            number = '6'
+        elif number in ['fife', '5', 'five']:
+            number = '5'
+        elif number in ['four', '4', 'for']:
+            number = '4'
+        elif number in ['three', 'tree', '3', 'free']:
+            number = '3'
+        elif number in ['too', 'to', 'two', '2']:
+            number = '2'
+        elif number in ['on', 'one', '1']:
+            number = '1'
+        else:
+            number = 'not_valid'
+        return number

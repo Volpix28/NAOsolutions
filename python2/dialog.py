@@ -6,7 +6,7 @@ class Dialog:
     sorry_message = ["Sorry, i didn't understand you, try again please!", "Sorry, i didn't understand you!", "Okay, i am sorry for that, please say your Name now."]
     confirmation_message = ["Your Name is ", " im right?", " Please say yes or no!", "Okay! ", " nice to meet you."]
     user_selection = ["Shall I delete your picture from my database? ", "Okay, that is a pity. I will delete all stored data related to you.", "I deleted the data now."]
-    emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy!", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
+    emotion_recording = ["Please rate your mood on a scale from 1 to 10. 10 means that you are happy! Please say the word number followed by the number of your mood.", "Okay, thank you for the Information!", "I am really sorry about that! Please rate your mood on a scale from 1 to 10."]
     jokes = [
                 "Why do pirates not take a shower when they walk the plank? They just wash up on shore.",
                 "How do you drown a hipster? You throw him in the mainstream.",
@@ -60,7 +60,7 @@ class Dialog:
 
     @staticmethod
     def invalid_emotion(name_of_user):
-        return "Please, say a number from 1 to 10 " + name_of_user + '.'
+        return "Please, say a number from 1 to 10 " + name_of_user + '.' + 'Please say the word number followed by the number of your mood.'
 
     @staticmethod
     def emotion_confirmation(name_of_user, emotion_rating):
