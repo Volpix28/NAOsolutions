@@ -31,8 +31,10 @@ Acts as local fileshare. The python 2.7 enviroment gets access granted through [
 
 - **images** contains all the pictures made in one session (gets cleared automatically after every communication)
 - **knowledge_base** contains all saved pictures needed for the face recognition
-- **names.csc** contains all names for the face recognition (empty at default)
+- **names.csv** contains all names for the face recognition (empty at default)
 - **runs.csv** contains all data thats gathered through the feature we implemented (empty at default)
+
+*Note:* There must be exactly the same number of images or entries in the Names.csv and in the knownledge database.
 
 *Please feel free to use this Flask and Docker setup for your own features without losing the possibilities provided by the naoqi-library!*
 
