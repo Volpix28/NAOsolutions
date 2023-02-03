@@ -12,15 +12,16 @@ from scipy.io.wavfile import write  # TODO: used?
 from dialog import Dialog  # custom dialogs
 from actions import Actions #costum Actions
 
-
+# get current timestamp
 def getTimestamp():
     return str(calendar.timegm(time.gmtime()))
 
 
 # get Behavior names
 def getBehaviors(managerProxy):
-  ''' Know which behaviors are on the robot '''
-  
+  '''
+  Know which behaviors are on the robot 
+  '''
   names = managerProxy.getInstalledBehaviors()
   print('Behaviors on the robot: ', names)
   names = managerProxy.getRunningBehaviors()
@@ -28,8 +29,9 @@ def getBehaviors(managerProxy):
 
 
 def launchAndStopBehavior(MANAGERPROXY, behaviorName, time_for_behavior):
-  ''' Launch and stop a behavior, if possible. '''
-
+  '''
+  Launch and stop a behavior, if possible. 
+  '''
   # Check that the behavior exists.
   if (MANAGERPROXY.isBehaviorInstalled(behaviorName)):
 
@@ -63,14 +65,19 @@ def launchAndStopBehavior(MANAGERPROXY, behaviorName, time_for_behavior):
 
 
 class Functions:
+    '''
+    Stored all functions in this class, to call them in the main.py script.
+    '''
+
+    # Take picture + emotion detection
     @staticmethod
     def emotionDetectionWithPic(NAOIP, PORT, BASE_API, text, camera, resolution, colorSpace, images_folder):
-        naoImage = Functions.takePicture(NAOIP, PORT, camera, resolution, colorSpace, images_folder) 
-        response_ed = requests.get(BASE_API + '/emotiondetection/' + naoImage)
-        while response_ed.status_code != 200:
-            text.say('I cannot see you properly, please look at my head.')
-            os.remove(os.path.join(images_folder, naoImage))
-            try: 
+        naoImage = Functions.takePicture(NAOIP, PORT, camera, resolution, colorSpace, images_folder) # take picture
+        response_ed = requests.get(BASE_API + '/emotiondetection/' + naoImage) # get response 
+        while response_ed.status_code != 200: # Error message: cant identify a person
+            text.say('I cannot see you properly, please look at my head.') # Error meessage
+            os.remove(os.path.join(images_folder, naoImage)) # remove picture to safe storage
+            try: # try again
                 naoImage = Functions.takePicture(NAOIP, PORT, camera, resolution, colorSpace, images_folder)
                 response_ed = requests.get(BASE_API + '/emotiondetection/' + naoImage)
             except ValueError:
@@ -78,64 +85,63 @@ class Functions:
         result_ed = ast.literal_eval(response_ed.json())
         return result_ed, naoImage
 
+    # take picture
     @staticmethod
     def takePicture(IP, PORT, camera, resolution, colorSpace, location):
         camProxy = ALProxy('ALVideoDevice', IP, PORT)
         videoClient = camProxy.subscribeCamera('python_client', camera, resolution, colorSpace, 5)
         naoImage = camProxy.getImageRemote(videoClient)
         camProxy.unsubscribe(videoClient)
-        imageName = 'image_' + getTimestamp() + '.png'
+        imageName = 'image_' + getTimestamp() + '.png' # create imagename
         im = Image.frombytes('RGB', (naoImage[0], naoImage[1]), naoImage[6]) # naoImage[0] = width, naoImage[1] = height, naoImage[6] = image data as ASCII char array
-        im.save(location + os.sep + imageName, 'PNG')
+        im.save(location + os.sep + imageName, 'PNG') # safe image 
         print('Image: ' + imageName + ' successfully saved @ ' + location)
         return imageName
 
-    #Record Audio 
+    #Record audio 
     @staticmethod
     def record_audio(NAOIP, PORT, t):
         recorderProxy = ALProxy('ALAudioRecorder', NAOIP, PORT)
         leds = ALProxy('ALLeds',NAOIP,PORT) # TODO: not used
         recorderProxy.stopMicrophonesRecording()
         nao_recordings_path = '/home/nao/nao_solutions/wavs/'
-        # settings
         audioName = 'name_' + getTimestamp() + '.wav'
         remoteaudiofilepath = nao_recordings_path + audioName
-        # configure channels
-        # left, right, front rear (mics?)
-        channels = (1, 0, 0, 0); # python tuple, C++ code uses AL:ALValue
+        channels = (1, 0, 0, 0); # python tuple, C++ code uses AL:ALValue --> only 1 
         print('Started Dialog...')
         recorderProxy.startMicrophonesRecording('/home/nao/nao_solutions/wavs/' + audioName, 'wav', 16000, channels)
-        # audio_file = recorderProxy.post.startMicrophonesRecording('/home/nao/nao_solutions/wavs/'+audioName, 'wav', 16000, channels)
-        # leds.rotateEyes(0x000000FF,1,t)
-        # continue recording for t seconds
         time.sleep(t)
-        # stop recording
         recorderProxy.stopMicrophonesRecording()
         return remoteaudiofilepath
 
 
-    @staticmethod # Speech2Text using google speech recognition
+    # Speech2Text using google speech recognition
+    @staticmethod
     def speech_recognition(remoteaudiofile, NAOIP, PASSWD, NAME):
-        transport = paramiko.Transport((NAOIP, 22))
-        transport.connect(username=NAME, password=PASSWD)
-        sftp = transport.open_sftp_client()
-        audio_file = sftp.open(remoteaudiofile)
-        r = sr.Recognizer()
+        transport = paramiko.Transport((NAOIP, 22)) # set up paramiko
+        transport.connect(username=NAME, password=PASSWD) # connect paramiko
+        sftp = transport.open_sftp_client() # open sftp client
+        audio_file = sftp.open(remoteaudiofile) # open audiofile path
+        r = sr.Recognizer() # initliaze speech_recognition
         with sr.AudioFile(audio_file) as file:
             audio_file = r.listen(file)
             try:
-                # using google speech recognition
                 text_data = str(r.recognize_google(audio_file))
                 print('recognized text: ', text_data)
                 return text_data
-            except sr.UnknownValueError as uve:
+            except sr.UnknownValueError as uve: # Error handling
                 print('Error ', uve)
             finally:
-                sftp.remove(remoteaudiofile)
+                sftp.remove(remoteaudiofile) # remove audio file on NAO
 
     ##########################
-    # Name 2 Text Functiions #
+    # Name 2 Text Functions #
     ##########################
+
+    '''
+    In this functions the name is recorded.
+    '''
+
     @staticmethod
     def record_name(NAOIP, PORT, PASSWD, NAME, text, record_name_time):
         text.say(Dialog.say_name)
@@ -178,7 +184,7 @@ class Functions:
                 confirmation = Functions.confirm(NAOIP, PORT, PASSWD, NAME, text, record_confirm_time, name_of_user)
         return name_of_user
 
-    # MEGA FUNCTION !!!!
+    # FINAL MEGA FUNCTION 
     @staticmethod
     def get_and_save_name(NAOIP, PORT, PASSWD, NAME, text):
         name_of_user = Functions.record_name(NAOIP, PORT, PASSWD, NAME, text, 5)
@@ -191,6 +197,10 @@ class Functions:
     ########################
     # DELETE USER FUNCTION #
     ########################
+
+    '''
+    This is the delete user Function.
+    '''
 
     @staticmethod
     def delete_user(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, img_id, data_save_approval):
@@ -215,7 +225,9 @@ class Functions:
     ###############################
     # ADD NAME TO KNOWNLEDGE BASE #
     ###############################
-
+    '''
+    Ask user for saving the data.
+    '''
     @staticmethod
     def data_saving(NAOIP, PORT, BASE_API, PASSWD, NAME, text, user_name, naoImage, default_approval):
         text.say('Is it okay for you, if I save your data for face recognition and analytics?')
@@ -240,6 +252,10 @@ class Functions:
     #############################
     # MANUAL EMOTION DETECTION #
     #############################
+
+    '''
+    Functions for manual emotion detection.
+    '''
 
     @staticmethod
     def emotion_recording(NAOIP, PORT, PASSWD, NAME, text, record_name_time):
@@ -318,7 +334,10 @@ class Functions:
     # EMOTIONMATCHING FUNCTIONS #
     #############################
 
-    # TODO Check if it's possible to access entertainment/moods choreograph-functions in python // jokes
+    '''
+    Nao makes an action.
+    '''
+
     @staticmethod
     def action(MOTIONPROXY, POSTUREPROXY, SOUNDPROXY, MANAGERPROXY, text, emotion_number, emotion, name_of_user):
         if emotion_number in range(1,6):
@@ -351,14 +370,10 @@ class Functions:
                 text.say('Hmm your expression earlier told me otherwise. ')
                 text.say(Dialog.random_joke(name_of_user))
                 SOUNDPROXY.post.playFile('/home/nao/nao_solutions/sound_effects/badumtss.wav', 1, 0.0) 
-                # action Confused?
-                #launchAndStopBehavior(MANAGERPROXY, 'bow', time_for_bow)
-                #Actions.hulahoop(MOTIONPROXY, POSTUREPROXY)
                 Actions.dance(MOTIONPROXY)
                 
-
+    # If Emotion ... NAO say "...." 
     @staticmethod
-    # TODO: Create new elif statements - caught all possible outcomes?
     def emotionchange(emotion, emotion2, text):
         negative = ['angry', 'disgust', 'fear', 'sad']
         neutral = ['neutral']
@@ -374,6 +389,7 @@ class Functions:
         elif emotion in negative or neutral and emotion2 in negative:
             text.say('I hope your mood will get better anytime soon.')
 
+    # Str to integer cast 
     @staticmethod
     def str_to_number(number):
         if number in ['pen', '10', 'ten']:

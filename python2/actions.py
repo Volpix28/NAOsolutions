@@ -1,10 +1,13 @@
-import time
-import calendar
-import requests
-import os
-import ast
+'''
+This script is necessary to execute the NAO actions.
+We have 2 different Actions:
+    1. dance
+    2. hulahoop
+'''
+
+
+# IMPORTS
 import speech_recognition as sr
-import paramiko
 import motion
 import almath
 from PIL import Image  # works only in local env

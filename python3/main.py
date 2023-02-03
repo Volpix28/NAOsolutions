@@ -2,6 +2,8 @@ from flask import Flask
 from flask_restful import Api, Resource
 from deepface import DeepFace
 from functools import partial
+
+#IMPORTS
 import pandas as pd
 import os
 import json
@@ -32,6 +34,11 @@ def createFolders(dir, *subfolders: str):
 
 
 def createCsv(dir, *files: str):
+    '''
+    Here two empty csv's are created with the names.csv and runs.csv. 
+    In names.csv the name and the image name from the knownledge database are written in. 
+    In runs.csv all results are stored.
+    '''
     exist = [f for f in files if os.path.isfile(dir + os.sep + f)]
     non_exist = list(set(exist) ^ set(files))  # Symmetric Difference
     if len(non_exist) != 0:
@@ -49,6 +56,7 @@ def createCsv(dir, *files: str):
         print('INFO - createCsv: file(s) %s already exists' % exist)
 
 
+#API 
 app = Flask(__name__)
 api = Api(app)
 
@@ -62,6 +70,17 @@ images_folder = os.path.join(fileshare, 'images')
 
 
 class EmotionDetection(Resource):
+    '''
+    This code defines a method get in a class DeepFace. 
+    The method takes as input an image name img_name, and performs facial analysis on the image 
+    using the DeepFace.analyze function. The function analyzes the image located at the path 
+    images_folder + os.sep + img_name and extracts the gender and emotion information.
+
+    The extracted information is then filtered and stored in a dictionary 
+    obj_filtered with only the dominant emotion and gender information. 
+    The dictionary is then converted to a JSON object using the json.dumps method and 
+    returned as the output of the get method.
+    '''
     def get(self, img_name):
         obj = DeepFace.analyze(img_path=images_folder + os.sep + img_name,
                                actions=['gender', 'emotion'])
@@ -71,6 +90,14 @@ class EmotionDetection(Resource):
 
 
 class FaceRecognition(Resource):
+    '''
+    In this class the face recognition is executed, this class compares the persons 
+    if they are already in the Knownledge data base.
+
+    Note: 
+    There must always be the same number of photos in the Knowledge_base as 
+    there are entries in the names.csv.
+    '''
     def get(self, img_name):
         name, img_id = 'not_found', 'not_in_database'
         known_images = os.listdir(knowledge_base)
@@ -82,6 +109,7 @@ class FaceRecognition(Resource):
             print(f'\nINFO - FaceRecognition: {i+1}. run: comparing image \"{img_name}\" with \"{known_images[i]}\"\nresult: {result}\n\n')
             if result['verified'] is True:
                 df = pd.read_csv(names_csv)
+                print(name)
                 name = df['NAME'][df['IMG']==known_images[i]].values[0]
                 img_id = known_images[i]
                 break
@@ -121,6 +149,9 @@ class DeletePerson(Resource):
 
 
 class CleanSession(Resource):
+    '''
+    If this class is triggered, then the photos in /fileshare/images are deleted.
+    '''
     def get(self):
         for file in os.listdir(images_folder):
             print(f'removing file: {file}')
@@ -128,7 +159,7 @@ class CleanSession(Resource):
         return {'data': 'deleted'}
 
 
-# add this resource to the api and make it accessable through URL
+# add this resource to the api and make it accessable through URL 
 api.add_resource(EmotionDetection, '/emotiondetection/<string:img_name>')  # add parameters with /<int:test>/...
 api.add_resource(FaceRecognition, '/facerecognition/<string:img_name>')
 api.add_resource(AddName, '/addname/<string:person_name>/<string:img_name>')
@@ -136,5 +167,6 @@ api.add_resource(DeletePerson, '/deleteperson/<string:img_id>')
 api.add_resource(CleanSession, '/cleansession')
 
 
+#RUN
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

@@ -1,3 +1,8 @@
+'''
+This .py file is used for the Dialogues that the nao says.
+'''
+
+# IMPORTS
 import random
 
 class Dialog:
@@ -70,6 +75,8 @@ class Dialog:
     def emotion_invalid_confirmation(emotion_rating):
         return "Your Mood is on a scale from 1 to 10, " + emotion_rating + ". Please say, yes or no!"
 
+
+    #get random jokes
     @staticmethod
     def random_joke(name):
         secure_random = random.SystemRandom()
