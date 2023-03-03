@@ -35,7 +35,8 @@ def createFolders(dir, *subfolders: str):
 
 def createCsv(dir, *files: str):
     '''
-    Here two empty csv's are created with the names.csv and runs.csv. 
+    Function for generating one or more csv file(s). If input filename matches filename "names.csv" or "runs.csv"
+    additional column header detail will be added to the generated csv file.
     In names.csv the name and the image name from the knownledge database are written in. 
     In runs.csv all results are stored.
     '''
