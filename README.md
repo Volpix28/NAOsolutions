@@ -10,7 +10,8 @@ Communication between the two enviroments is done via flask-restful API.
 
 ## setting up everything thats needed
 
-- build docker container with the python.dockerfile and the requirements.txt file
+- build docker container with the python.dockerfile and the requirements.txt file and cofigure bind mount
+to exchange data between docker and the local system
 - go to python3/main.py and start the API
 - go to python2/main.py and adjust the connection settings (NAOIP & BASE_API). Attention: When using Windows you will need to enter the IP Adress of your WSL (use ipconfig/all for looking up)
 - start the script
